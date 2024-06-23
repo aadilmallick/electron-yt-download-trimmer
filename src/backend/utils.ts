@@ -85,7 +85,7 @@ export type IPCPayloads = {
     : K extends "error:uploading"
     ? { message: string }
     : K extends "success:uploading"
-    ? { message: string; filepath: string }
+    ? { message: string; filepath: string; framerate: number }
     : K extends "video:download-to-browser"
     ? { filepath: string }
     : K extends "success:download-to-browser"

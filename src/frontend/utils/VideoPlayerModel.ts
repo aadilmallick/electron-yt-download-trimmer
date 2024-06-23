@@ -48,8 +48,8 @@ class VideoPlayerModel {
     this.handleTimelineEvents();
   }
 
-  public async setFramerate(filePath: string) {
-    // TODO: get and set frame rate
+  public async setFramerate(frameRate: number) {
+    this.frameRate = frameRate;
   }
 
   private handleTimelineEvents() {

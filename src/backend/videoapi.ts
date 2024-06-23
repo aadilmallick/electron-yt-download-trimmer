@@ -35,7 +35,7 @@ class CLI {
         },
         (error, stdout, stderr) => {
           if (error) {
-            console.error("Error executing ffmpeg:", error);
+            Print.yellow("Error executing ffmpeg:", error);
             reject(stderr);
           } else {
             resolve(stdout);
@@ -82,7 +82,7 @@ export class FFMPEGModel {
 
   static async compress(inputPath: string, outputPath: string) {
     const stdout = await this.cmd(
-      `-y -i ${inputPath} -vcodec libx264 -crf 28 -acodec copy  ${outputPath}`
+      `-y -i "${inputPath}" -vcodec libx264 -crf 28 -acodec copy "${outputPath}"`
     );
     return stdout;
   }
@@ -107,7 +107,7 @@ export class FFMPEGModel {
     await this.cmd(
       `-y -ss ${inpoint} -t ${
         outpoint - inpoint
-      } -i ${input_path} -c copy ${output_path}`
+      } -i "${input_path}" -c copy "${output_path}"`
     );
     return output_path;
   }
@@ -121,7 +121,7 @@ export class FFMPEGModel {
     height: number
   ) {
     await this.cmd(
-      `-y -i ${inputPath} -vf "crop=${width}:${height}:${x}:${y}" ${outputPath}`
+      `-y -i "${inputPath}" -vf "crop=${width}:${height}:${x}:${y}" "${outputPath}"`
     );
   }
   static async changeSize(
@@ -130,14 +130,16 @@ export class FFMPEGModel {
     width: number,
     height: number
   ) {
-    await this.cmd(`-y -i ${inputPath} -s ${width}x${height} ${outputPath}`);
+    await this.cmd(
+      `-y -i "${inputPath}" -s ${width}x${height} "${outputPath}"`
+    );
   }
   static async changeFramerate(
     inputPath: string,
     outputPath: string,
     frameRate: number
   ) {
-    await this.cmd(`-y -i ${inputPath} -r ${frameRate} ${outputPath}`);
+    await this.cmd(`-y -i "${inputPath}" -r ${frameRate} "${outputPath}"`);
   }
 
   static async saveThumbnail(
@@ -145,7 +147,9 @@ export class FFMPEGModel {
     outputPath: string,
     time: number
   ) {
-    await this.cmd(`-y -ss ${time} -i ${inputPath} -vframes 1 ${outputPath}`);
+    await this.cmd(
+      `-y -ss ${time} -i "${inputPath}" -vframes 1 "${outputPath}"`
+    );
   }
 }
 
@@ -165,7 +169,7 @@ export class FFPROBEModel {
     const part2 =
       "-show_entries stream=codec_name,width,height,bit_rate,r_frame_rate";
     const part3 = "-show_entries format=duration,filename,nb_streams,size";
-    const stdout = await this.cmd(`${part1} ${part2} ${part3} ${filepath}`);
+    const stdout = await this.cmd(`${part1} ${part2} ${part3} "${filepath}"`);
     const data = JSON.parse(stdout);
     const info = {
       codec_name: data.streams[0].codec_name as string,
@@ -190,9 +194,14 @@ export class FFPROBEModel {
   }
 
   static async getVideoFrameRate(filePath: string) {
-    const command = `-v error -select_streams v:0 -show_entries stream=r_frame_rate -of default=noprint_wrappers=1:nokey=1 "${filePath}"`;
-    const framerate = await this.cmd(command);
-    return this.convertFractionStringToNumber(framerate);
+    try {
+      const command = `-v error -select_streams v:0 -show_entries stream=r_frame_rate -of default=noprint_wrappers=1:nokey=1 ${filePath}`;
+      const framerate = await this.cmd(command);
+      return this.convertFractionStringToNumber(framerate);
+    } catch (e) {
+      Print.red("Error getting frame rate:", e);
+      return 30;
+    }
   }
 
   private static convertFractionStringToNumber(fractionString: string) {
@@ -203,19 +212,3 @@ export class FFPROBEModel {
     return numerator / denominator;
   }
 }
-
-// execFile(ffmpegPath, ["-version"], (error, stdout, stderr) => {
-//   if (error) {
-//     console.error("Error executing ffmpeg:", error);
-//     return;
-//   }
-//   console.log("FFmpeg output:", stdout);
-// });
-
-// execFile(ytdlpPath, ["--version"], (error, stdout, stderr) => {
-//   if (error) {
-//     console.error("Error executing yt-dlp:", error);
-//     return;
-//   }
-//   console.log("yt-dlp output:", stdout);
-// });

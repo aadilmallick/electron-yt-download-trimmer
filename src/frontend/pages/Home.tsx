@@ -21,17 +21,18 @@ const VideoUploadButton = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { isOnline } = useIsOnline();
-  const { setFilePath } = useApplicationStore();
+  const { setFilePath, setVideoFrameRate } = useApplicationStore();
 
   async function uploadUrl() {
-    // TODO: ask main process to download youtube video
     setLoading(true);
     window.appApi.downloadYoutubeURL(url);
 
     window.appApi.handleEvent("success:uploading", (payload) => {
       toast.success(payload.message);
 
+      // set filepath and framerate of video
       setFilePath(payload.filepath);
+      setVideoFrameRate(payload.framerate);
       setLoading(false);
       navigate("/trim");
     });

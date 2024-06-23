@@ -5,7 +5,7 @@ import VideoPlayer from "../components/VideoPlayer";
 import { toast } from "react-toastify";
 
 const Trim = () => {
-  const { filePath } = useApplicationStore();
+  const { filePath, videoFrameRate } = useApplicationStore();
   const { dataString, loading } = useVideoDownload(filePath);
 
   if (loading) {
@@ -17,7 +17,7 @@ const Trim = () => {
 
   return (
     <section className="py-8 h-screen">
-      <VideoPlayer blobUrl={dataString} />
+      <VideoPlayer blobUrl={dataString} frameRate={videoFrameRate} />
     </section>
   );
 };

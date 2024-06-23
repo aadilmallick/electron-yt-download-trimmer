@@ -7,9 +7,10 @@ import PlaybackSpeedControls from "./PlaybackSpeedControls";
 
 interface VideoPlayerProps {
   blobUrl: string;
+  frameRate: number;
 }
 
-const VideoPlayer = ({ blobUrl }: VideoPlayerProps) => {
+const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const [volumeState, setVolumeState] =
     React.useState<VolumeControlsProps["state"]>("high");
@@ -62,7 +63,7 @@ const VideoPlayer = ({ blobUrl }: VideoPlayerProps) => {
     if (!video) return;
 
     const videoModel = new VideoPlayerModel(video);
-    //TODO: get frame rate
+    videoModel.setFramerate(frameRate);
     setSliderVolume(videoModel.volume);
 
     // clicking on mute button
@@ -112,6 +113,7 @@ const VideoPlayer = ({ blobUrl }: VideoPlayerProps) => {
             videoModel.getPlaybackInfo().currentTime,
             videoModel.getPlaybackInfo().duration
           );
+          toast.info("Inpoint set");
 
           break;
         case "o":
@@ -119,14 +121,13 @@ const VideoPlayer = ({ blobUrl }: VideoPlayerProps) => {
             videoModel.getPlaybackInfo().currentTime,
             videoModel.getPlaybackInfo().duration
           );
+          toast.info("Outpoint set");
 
           break;
         case "n":
-          // TODO: go to next frame
           videoModel.nextFrame();
           break;
         case "b":
-          // TODO: go back one frame
           videoModel.previousFrame();
           break;
         case "arrowleft":

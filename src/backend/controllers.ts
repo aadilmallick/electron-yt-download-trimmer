@@ -1,6 +1,6 @@
 import { VideoModel } from "./nodeUtils";
 import { IPC, Print } from "./utils";
-import { YTDLPModel } from "./videoapi";
+import { FFPROBEModel, YTDLPModel } from "./videoapi";
 
 export const onDownloadToBrowser = (
   window: Electron.BrowserWindow,
@@ -11,7 +11,9 @@ export const onDownloadToBrowser = (
       const base64 = await VideoModel.getBlob(payload.filepath);
       // const blobUrl = URL.createObjectURL(file);
       Print.green("data string first 100 chars:", base64.slice(0, 100));
-      IPC.sendToRenderer(window, "success:download-to-browser", { base64string: base64 });
+      IPC.sendToRenderer(window, "success:download-to-browser", {
+        base64string: base64,
+      });
       cb && (await cb());
     } catch (e) {
       Print.red("controllers.ts: Error downloading blob version of video:", e);
@@ -35,10 +37,13 @@ export const onDownloadYoutubeURL = (
       Print.cyan(stdout);
 
       const filepath = await VideoModel.renameVideoFile(payload.url);
+      const framerate = await FFPROBEModel.getVideoFrameRate(filepath);
+      Print.green("Framerate:", framerate);
       // 3. if video downloading succeeds, send success message to renderer
       IPC.sendToRenderer(window, "success:uploading", {
         message: "Video downloaded successfully.",
         filepath,
+        framerate,
       });
 
       await cb();

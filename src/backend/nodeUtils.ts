@@ -28,14 +28,16 @@ export class VideoModel {
   }
 
   static async renameVideoFile(url: string) {
+    // this function finds your download youtube video based on id, renames it, returns filepath
     const videoId = this.getYoutubeId(url);
-    // path.join(__dirname, "..", "..", "src/binaries", binaryName);
-    let oldPath = (await fs.readdir(this.videosPath)).filter((file) =>
+    const filename = (await fs.readdir(this.videosPath)).filter((file) =>
       file.includes(videoId)
     )[0];
-    oldPath = path.join(this.videosPath, oldPath);
+    const oldPath = path.join(this.videosPath, filename);
     Print.cyan("Old path:", oldPath);
-    const newPath = `${oldPath.split(".mp4")[0]}-${uuid()}.mp4`;
+    let newPath = filename.replaceAll(" ", "-");
+    newPath = path.join(this.videosPath, newPath);
+    newPath = `${newPath.split(".mp4")[0]}-${uuid()}.mp4`;
     Print.cyan("New path:", newPath);
     fs.rename(oldPath, newPath);
     return newPath;
