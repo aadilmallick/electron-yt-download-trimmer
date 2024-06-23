@@ -1,0 +1,36 @@
+{
+  "name": "electronyoutubedownloadtrimmer",
+  "dockerFile": "Dockerfile",
+  "forwardPorts": [3000, 5173],
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
+  ],
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "workbench.colorTheme": "Monokai Pro",
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+      },
+      "extensions": [
+        "bradlc.vscode-tailwindcss",
+        "austenc.tailwind-docs",
+        "ms-azuretools.vscode-docker",
+        "zh9528.file-size",
+        "christian-kohler.npm-intellisense",
+        "rangav.vscode-thunder-client",
+        "esbenp.prettier-vscode",
+        "burkeholland.simple-react-snippets",
+        "yzhang.markdown-all-in-one",
+        "million.million-lint",
+        "vitest.explorer",
+        "wayou.vscode-todo-highlight",
+        "redhat.vscode-yaml",
+        "bentodaniel.vs-tab-groups",
+        "Gruntfuggly.todo-tree",
+        "YoavBls.pretty-ts-errors",
+        "alefragnani.Bookmarks"
+      ]
+    }
+  },
+  "postCreateCommand": "echo done"
+}

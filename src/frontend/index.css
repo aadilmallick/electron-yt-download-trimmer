@@ -1,0 +1,220 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.video-container {
+  --transition-opacity: opacity 0.3s ease-in;
+  max-width: 1000px;
+  width: 90%;
+  margin: 0 auto;
+  position: relative;
+  video {
+    width: 100%;
+    height: auto;
+  }
+  .video-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 0.25rem 0.5rem;
+    opacity: 0;
+    transition: opacity 0.3s ease-in;
+    display: flex;
+    gap: 0.25rem;
+    z-index: 100;
+    &::before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      aspect-ratio: 6 / 1;
+      z-index: -1;
+      /* to click right through */
+      pointer-events: none;
+      background: linear-gradient(0deg, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+    }
+  }
+
+  .video-controls button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.1rem;
+    height: 30px;
+    width: 30px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: var(--transition-opacity);
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.video-container:hover {
+  .video-controls {
+    opacity: 1;
+  }
+  .timeline-container {
+    opacity: 1;
+  }
+}
+
+.volume-container {
+  display: flex;
+  align-items: center;
+  .volume-slider {
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.3s ease-in;
+    width: 100px;
+    cursor: pointer;
+  }
+  &:hover {
+    .volume-slider {
+      transform: scaleX(1);
+    }
+  }
+  input[type="range"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  input[type="range"]::-webkit-slider-runnable-track {
+    border-radius: 10px;
+    height: 3px;
+    background-color: #fff;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    background: #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 12px;
+    height: 12px;
+    margin-top: -4px;
+    margin-right: 5px;
+    -webkit-appearance: none;
+  }
+
+  input[type="range"]::-moz-range-track {
+    border-radius: 10px;
+    height: 3px;
+    background-color: #fff;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    background: #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 12px;
+    height: 12px;
+    margin-top: -4px;
+    margin-right: 5px;
+  }
+}
+
+.duration-container {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-grow: 1;
+  color: white;
+}
+
+.inpoint-outpoint-container {
+  max-width: 1000px;
+  width: 90%;
+  margin: 0 auto;
+  padding-top: 5rem;
+}
+
+.playback-speed-container {
+  width: 50px !important;
+}
+
+.timeline-container {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  z-index: 500;
+  left: 0;
+  bottom: 3rem;
+  width: 97.5%;
+  margin-inline: 0.8rem;
+  opacity: 0;
+  transition: opacity 0.3s ease-in;
+}
+
+.timeline {
+  background-color: rgba(100, 100, 100, 0.5);
+  height: 4px;
+  width: 100%;
+  position: relative;
+  transition: height 0.25s linear;
+  transform-origin: center center;
+  &:hover {
+    height: 8px;
+    .thumb-indicator {
+      --scale: 1;
+    }
+  }
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: calc(100% - var(--preview-position) * 100%);
+  background-color: rgb(150, 150, 150);
+  display: none;
+}
+
+.timeline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: calc(100% - var(--progress-position) * 100%);
+  background-color: red;
+}
+
+.timeline .thumb-indicator {
+  --scale: 0;
+  position: absolute;
+  transform: translateX(-50%) scale(var(--scale));
+  top: -50%;
+  height: 200%;
+  left: calc(var(--progress-position) * 100%);
+  background-color: red;
+  border-radius: 50%;
+  transition: transform 150ms ease-in-out;
+  aspect-ratio: 1 / 1;
+}
+
+.inpoint-indicator,
+.outpoint-indicator {
+  position: absolute;
+  font-size: 1rem;
+  bottom: -4px;
+  color: lightblue;
+  border-radius: 50%;
+  z-index: 1000;
+  font-weight: 700;
+  display: block;
+}
+
+.inpoint-indicator {
+  left: calc(var(--inpoint-position) * 100%);
+}
+
+.outpoint-indicator {
+  left: calc(var(--outpoint-position) * 100%);
+}
