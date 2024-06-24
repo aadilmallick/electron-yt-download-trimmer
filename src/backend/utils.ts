@@ -70,6 +70,29 @@ export class IPC {
   }
 }
 
+export class IPCNew {
+  static async sendToMain<T extends Channels>(
+    channel: T,
+    payload?: IPCPayload<T>
+  ) {
+    const response: IPCReturnType<T> = await ipcRenderer.invoke(
+      channel,
+      payload
+    );
+    return response;
+  }
+
+  static async listenOnMain<T extends Channels>(
+    channel: T,
+    listener: (
+      event: Electron.IpcMainEvent,
+      payload?: IPCPayload<T>
+    ) => Promise<IPCReturnType<T>>
+  ) {
+    ipcMain.handle(channel, listener);
+  }
+}
+
 export type Channels =
   | "video:upload"
   | "video:compress"
@@ -112,4 +135,11 @@ export type IPCPayloads = {
     : never;
 };
 
+export type IPCReturns = {
+  [K in Channels]: K extends "video:upload"
+    ? { message: string; filepath: string; framerate: number }
+    : never;
+};
+
 type IPCPayload<T extends Channels> = IPCPayloads[T];
+type IPCReturnType<T extends Channels> = IPCReturns[T];
