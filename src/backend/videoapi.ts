@@ -9,7 +9,7 @@ const getBinaryPath = (binaryName: string) => {
   if (process.env.NODE_ENV === "development") {
     binaryPath = path.join(__dirname, "..", "..", "src/binaries", binaryName);
   } else {
-    binaryPath = path.join(process.resourcesPath, "binaries", binaryName);
+    binaryPath = path.join(__dirname, "resources", "binaries", binaryName);
   }
   return binaryPath;
 };
