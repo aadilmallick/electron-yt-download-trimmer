@@ -60,3 +60,21 @@
 
 - You cannot use the fs node module in the preload scripts. You only have access to a select few node modules.
 - Only JSON-compatible data can be serialized in IPC. This means you can't send functions or classes over IPC.
+
+## Code signing
+
+Run this code to self-sign your app: 
+
+```bash
+# interactive
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365
+
+# non-interactive and 10 years expiration
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 3650 -nodes -subj "/C=US/ST=Virginia/L=Restone/O=Company Name/OU=Org/CN=www.aadilmallick.com"
+```
+
+You can also create a self-signed certificate using electron builder, like so: 
+
+```bash
+npx electron-builder create-self-signed-cert -p aadilmallick
+```
