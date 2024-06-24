@@ -4,6 +4,9 @@ import { toast } from "react-toastify";
 import { Loader } from "./Loader";
 import VideoPlayerModel from "../utils/VideoPlayerModel";
 import PlaybackSpeedControls from "./PlaybackSpeedControls";
+import FileDialog from "./FileDialog";
+import { useApplicationStore } from "../hooks/useApplicationStore";
+import { ClearVideoButton } from "./ClearVideoButton";
 
 interface VideoPlayerProps {
   blobUrl: string;
@@ -19,6 +22,8 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
   const [outpoint, setOutpoint] = React.useState(-1);
   const [sliceLoading, setSliceLoading] = React.useState(false);
   const [speed, setSpeed] = React.useState(1);
+  const [sliceFolderPath, setSliceFolderPath] = React.useState("");
+  const { filePath } = useApplicationStore();
 
   const markInpoint = (currentTime: number, videoDuration: number) => {
     if (currentTime > -1) {
@@ -148,12 +153,33 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
   }, [blobUrl]);
 
   const downloadSlice = async () => {
-    console.log("downloading slice ...");
     if (inpoint === -1 || outpoint === -1) {
       toast.error("Please set inpoint and outpoint");
       return;
     }
+    if (!sliceFolderPath) {
+      toast.error("Please select a directory to save the slice");
+      return;
+    }
+    console.log("downloading slice ...");
     // TODO: download slice
+
+    setSliceLoading(true);
+    window.appApi.uploadSlice({
+      inpoint,
+      outpoint,
+      filepath: filePath,
+      directory: sliceFolderPath,
+    });
+    window.appApi.handleEvent("success:slice", (payload) => {
+      toast.success(payload.message);
+      setSliceLoading(false);
+    });
+
+    window.appApi.handleEvent("error:slice", (payload) => {
+      toast.error(payload.message);
+      setSliceLoading(false);
+    });
   };
 
   return (
@@ -192,17 +218,25 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
           <source src={blobUrl} type="video/mp4" />
         </video>
       </div>
+      <FileDialog
+        dirPath={sliceFolderPath}
+        onChooseDir={() => {
+          window.appApi.showDialog();
+          window.appApi.handleEvent("selected:directory", (payload) => {
+            setSliceFolderPath(payload.directory);
+          });
+        }}
+      />
       <div className="inpoint-outpoint-container space-y-4">
         <p>Inpoint: {convertPointToNumber(inpoint)}</p>
         <p>Outpoint: {convertPointToNumber(outpoint)}</p>
         <button
           className="bg-black px-4 py-2 rounded-sm text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={downloadSlice}
-          disabled={sliceLoading}
+          disabled={!sliceFolderPath === true || sliceLoading === true}
         >
-          Create slice
+          {sliceLoading ? <Loader /> : "Create slice"}
         </button>
-        {sliceLoading && <Loader />}
       </div>
       <div className="shortcuts py-8 max-w-[1000px] mx-auto px-4">
         <p>
@@ -218,6 +252,7 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
           Press <kbd>o</kbd> to set outpoint
         </p>
       </div>
+      <ClearVideoButton />
     </>
   );
 };

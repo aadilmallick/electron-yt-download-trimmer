@@ -12,6 +12,18 @@ const appApi = {
     IPC.sendToMain("video:download-to-browser", { filepath });
   },
 
+  showDialog: () => {
+    IPC.sendToMain("show:dialog");
+  },
+
+  clearVideos: () => {
+    IPC.sendToMain("video:clear");
+  },
+
+  uploadSlice: (payload: IPCPayloads["video:slice"]) => {
+    IPC.sendToMain("video:slice", payload);
+  },
+
   handleEvent: IPC.handleEventFromMain,
 } as const;
 

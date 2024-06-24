@@ -1,6 +1,105 @@
-import { VideoModel } from "./nodeUtils";
+import path from "path";
+import { app, dialog } from "electron";
+import { FileManager, VideoModel } from "./nodeUtils";
 import { IPC, Print } from "./utils";
-import { FFPROBEModel, YTDLPModel } from "./videoapi";
+import { FFMPEGModel, FFPROBEModel, YTDLPModel } from "./videoapi";
+import fs from "fs/promises";
+
+const globalObj: {
+  slicesDir: string | null;
+  sliceNum: number;
+} = {
+  slicesDir: null,
+  sliceNum: 0,
+};
+
+export const onClearVideos = async (window: Electron.BrowserWindow) => {
+  IPC.listenOnMain("video:clear", async (event, _) => {
+    try {
+      await VideoModel.clearVideosDirectory();
+      globalObj.slicesDir = null;
+      globalObj.sliceNum = 0;
+      Print.green("Cleared videos directory");
+      IPC.sendToRenderer(window, "success:clear", {
+        message: "Videos cleared successfully.",
+      });
+    } catch (e) {
+      Print.red("Error clearing videos directory:", e);
+      IPC.sendToRenderer(window, "error:clear", {
+        message: "Oops, the videos couldn't be cleared.",
+      });
+    }
+  });
+};
+
+export const onUploadSlice = async (window: Electron.BrowserWindow) => {
+  IPC.listenOnMain("video:slice", async (event, payload) => {
+    if (!payload) throw new Error("Payload is missing");
+
+    // set indeterminate progress bar
+    window.setProgressBar(2);
+
+    const { directory, filepath, inpoint, outpoint } = payload;
+
+    try {
+      const stdout = await FFMPEGModel.createVideoSlice(
+        filepath,
+        path.join(directory, `slice-${globalObj.sliceNum++}.mp4`),
+        inpoint,
+        outpoint
+      );
+      Print.green("Sliced video");
+      IPC.sendToRenderer(window, "success:slice", {
+        message: "Video sliced successfully.",
+      });
+    } catch (error) {
+      Print.red("Error slicing video:", error);
+      IPC.sendToRenderer(window, "error:slice", {
+        message: "Oops, the video couldn't be sliced.",
+      });
+    } finally {
+      // reset progress bar
+      window.setProgressBar(-1);
+    }
+  });
+};
+
+export const onShowDialog = async (window: Electron.BrowserWindow) => {
+  IPC.listenOnMain("show:dialog", async (event, _) => {
+    const basePath = path.join(app.getPath("videos"), "slices");
+
+    // if default path does not exist, create it
+    if (globalObj.slicesDir) {
+      const defaultPath = path.join(basePath, globalObj.slicesDir);
+      await FileManager.createDirectory(defaultPath, { overwrite: true });
+    }
+    try {
+      const result = await dialog.showOpenDialog(window, {
+        properties: ["openDirectory"],
+        defaultPath: path.join(basePath, globalObj.slicesDir || "video-slices"),
+      });
+
+      // if user selects path
+      if (!result.canceled) {
+        Print.green("directory is", result.filePaths[0]);
+        IPC.sendToRenderer(window, "selected:directory", {
+          directory: result.filePaths[0],
+        });
+
+        const defaultPath = path.join(basePath, globalObj.slicesDir);
+
+        // if user selects path different from default, immediately delete that folder
+        if (result.filePaths[0] !== defaultPath) {
+          await fs.rm(defaultPath, { recursive: true });
+        }
+      } else {
+        Print.yellow("user cancelled dialog");
+      }
+    } catch (e) {
+      Print.red("Error showing dialog:", e);
+    }
+  });
+};
 
 export const onDownloadToBrowser = (
   window: Electron.BrowserWindow,
@@ -36,7 +135,10 @@ export const onDownloadYoutubeURL = (
       const stdout = await YTDLPModel.downloadVideo(payload.url);
       Print.cyan(stdout);
 
-      const filepath = await VideoModel.renameVideoFile(payload.url);
+      const webmpath = await VideoModel.renameVideoFile(payload.url);
+      // TODO: convert to mp4
+      const filepath = await VideoModel.convertVideoToMp4(webmpath);
+      globalObj.slicesDir = path.basename(filepath).split(".mp4")[0];
       const framerate = await FFPROBEModel.getVideoFrameRate(filepath);
       Print.green("Framerate:", framerate);
       // 3. if video downloading succeeds, send success message to renderer

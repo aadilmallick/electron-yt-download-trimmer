@@ -35,7 +35,7 @@ class CLI {
         },
         (error, stdout, stderr) => {
           if (error) {
-            Print.yellow("Error executing ffmpeg:", error);
+            Print.yellow(`Error executing ${path.basename(filepath)}:`, error);
             reject(stderr);
           } else {
             resolve(stdout);
@@ -63,7 +63,7 @@ export class YTDLPModel {
     if (!ytUrl) {
       throw new Error("Invalid Youtube URL");
     }
-    const stdout = await this.cmd(`-f mp4 ${ytUrl}`, {
+    const stdout = await this.cmd(`${ytUrl}`, {
       cwd: path.join(__dirname, "..", "..", "src/videos"),
     });
     return stdout;
@@ -82,7 +82,7 @@ export class FFMPEGModel {
 
   static async compress(inputPath: string, outputPath: string) {
     const stdout = await this.cmd(
-      `-y -i "${inputPath}" -vcodec libx264 -crf 28 -acodec copy "${outputPath}"`
+      `-y -i ${inputPath} -vcodec libx264 -crf 28 -acodec copy ${outputPath}`
     );
     return stdout;
   }
@@ -107,7 +107,7 @@ export class FFMPEGModel {
     await this.cmd(
       `-y -ss ${inpoint} -t ${
         outpoint - inpoint
-      } -i "${input_path}" -c copy "${output_path}"`
+      } -i ${input_path} -c copy ${output_path}`
     );
     return output_path;
   }
@@ -121,7 +121,7 @@ export class FFMPEGModel {
     height: number
   ) {
     await this.cmd(
-      `-y -i "${inputPath}" -vf "crop=${width}:${height}:${x}:${y}" "${outputPath}"`
+      `-y -i ${inputPath} -vf "crop=${width}:${height}:${x}:${y}" ${outputPath}`
     );
   }
   static async changeSize(
@@ -130,16 +130,14 @@ export class FFMPEGModel {
     width: number,
     height: number
   ) {
-    await this.cmd(
-      `-y -i "${inputPath}" -s ${width}x${height} "${outputPath}"`
-    );
+    await this.cmd(`-y -i ${inputPath} -s ${width}x${height} ${outputPath}`);
   }
   static async changeFramerate(
     inputPath: string,
     outputPath: string,
     frameRate: number
   ) {
-    await this.cmd(`-y -i "${inputPath}" -r ${frameRate} "${outputPath}"`);
+    await this.cmd(`-y -i ${inputPath} -r ${frameRate} ${outputPath}`);
   }
 
   static async saveThumbnail(
@@ -147,9 +145,7 @@ export class FFMPEGModel {
     outputPath: string,
     time: number
   ) {
-    await this.cmd(
-      `-y -ss ${time} -i "${inputPath}" -vframes 1 "${outputPath}"`
-    );
+    await this.cmd(`-y -ss ${time} -i ${inputPath} -vframes 1 ${outputPath}`);
   }
 }
 
@@ -169,7 +165,7 @@ export class FFPROBEModel {
     const part2 =
       "-show_entries stream=codec_name,width,height,bit_rate,r_frame_rate";
     const part3 = "-show_entries format=duration,filename,nb_streams,size";
-    const stdout = await this.cmd(`${part1} ${part2} ${part3} "${filepath}"`);
+    const stdout = await this.cmd(`${part1} ${part2} ${part3} ${filepath}`);
     const data = JSON.parse(stdout);
     const info = {
       codec_name: data.streams[0].codec_name as string,
@@ -188,7 +184,7 @@ export class FFPROBEModel {
   }
 
   static async getVideoDuration(filePath: string) {
-    const command = `-v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${filePath}"`;
+    const command = `-v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 ${filePath}`;
     const duration = await this.cmd(command);
     return Number(duration);
   }

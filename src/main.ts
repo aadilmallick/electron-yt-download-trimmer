@@ -1,8 +1,11 @@
 import { app, BrowserWindow } from "electron";
 import path from "path";
 import {
+  onClearVideos,
   onDownloadToBrowser,
   onDownloadYoutubeURL,
+  onShowDialog,
+  onUploadSlice,
 } from "./backend/controllers";
 import { VideoModel } from "./backend/nodeUtils";
 
@@ -40,6 +43,9 @@ const createWindow = async () => {
     app.focus();
   });
   onDownloadToBrowser(mainWindow);
+  onShowDialog(mainWindow);
+  onUploadSlice(mainWindow);
+  onClearVideos(mainWindow);
 };
 
 // This method will be called when Electron has finished

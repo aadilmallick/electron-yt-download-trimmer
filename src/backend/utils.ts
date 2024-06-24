@@ -73,21 +73,40 @@ export class IPC {
 export type Channels =
   | "video:upload"
   | "video:compress"
-  | "video:trim"
+  | "video:slice"
   | "error:uploading"
   | "success:uploading"
   | "video:download-to-browser"
-  | "success:download-to-browser";
+  | "success:download-to-browser"
+  | "show:dialog"
+  | "selected:directory"
+  | "success:slice"
+  | "error:slice"
+  | "video:clear"
+  | "success:clear"
+  | "error:clear";
 
 export type IPCPayloads = {
   [K in Channels]: K extends "video:upload"
     ? { url: string }
     : K extends "error:uploading"
     ? { message: string }
+    : K extends "success:slice"
+    ? { message: string }
+    : K extends "error:slice"
+    ? { message: string }
+    : K extends "success:clear"
+    ? { message: string }
+    : K extends "error:clear"
+    ? { message: string }
     : K extends "success:uploading"
     ? { message: string; filepath: string; framerate: number }
     : K extends "video:download-to-browser"
     ? { filepath: string }
+    : K extends "video:slice"
+    ? { filepath: string; inpoint: number; outpoint: number; directory: string }
+    : K extends "selected:directory"
+    ? { directory: string }
     : K extends "success:download-to-browser"
     ? { base64string: string }
     : never;
