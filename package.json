@@ -2,7 +2,7 @@
   "name": "yt-trimmer",
   "productName": "yt-trimmer",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "The youtube download trimmer that makes it easy.",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",

@@ -73,6 +73,12 @@ const config: ForgeConfig = {
         name: "electron-yt-download-trimmer",
         owner: "aadilmallick",
       },
+      authToken: (() => {
+        return (
+          process.env.GH_ACCESS_TOKEN ||
+          (new Error("no access token provided") as unknown as string)
+        );
+      })(),
     }),
   ],
 };
