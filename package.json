@@ -1,7 +1,7 @@
 {
   "name": "yt-trimmer",
   "productName": "yt-trimmer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The youtube download trimmer that makes it easy.",
   "main": ".vite/build/main.js",
   "scripts": {
@@ -57,5 +57,9 @@
     "update-electron-app": "^3.0.0",
     "uuid": "^10.0.0",
     "zustand": "^4.5.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aadilmallick/electron-yt-download-trimmer"
   }
 }
