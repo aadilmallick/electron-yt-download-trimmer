@@ -9,6 +9,8 @@ import {
   onUploadSlice,
 } from "./backend/controllers";
 import { VideoModel } from "./backend/nodeUtils";
+import { updateElectronApp } from "update-electron-app";
+updateElectronApp();
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
