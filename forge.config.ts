@@ -12,7 +12,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-console.log("Certificate password", process.env.VITE_CERTIFICATE_PASSWORD);
+// console.log("Certificate password", process.env.VITE_CERTIFICATE_PASSWORD);
 
 const config: ForgeConfig = {
   packagerConfig: {
@@ -21,10 +21,11 @@ const config: ForgeConfig = {
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({
-      certificateFile: "./cert.pem",
-      certificatePassword: process.env.VITE_CERTIFICATE_PASSWORD,
-    }),
+    new MakerSquirrel(),
+    //   {
+    //   certificateFile: "./cert.pem",
+    //   certificatePassword: process.env.VITE_CERTIFICATE_PASSWORD,
+    // }
     new MakerDeb({
       options: {
         maintainer: "aadilmallick",
@@ -69,6 +70,7 @@ const config: ForgeConfig = {
   ],
   publishers: [
     new PublisherGithub({
+      prerelease: true,
       repository: {
         name: "electron-yt-download-trimmer",
         owner: "aadilmallick",

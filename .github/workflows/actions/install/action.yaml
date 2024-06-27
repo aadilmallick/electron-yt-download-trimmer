@@ -1,0 +1,17 @@
+name: "Get + cache dependencies"
+description: "Get and cache dependencies for faster builds"
+
+# required key. Basically what steps to run in the actions
+runs:
+  using: "composite" # required to define as composite action
+  steps:
+    - name: Cache dependencies
+      id: cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.npm
+        key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+    - name: Install dependencies
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: npm ci
+      shell: bash # shell: bash required when using `runs` command
