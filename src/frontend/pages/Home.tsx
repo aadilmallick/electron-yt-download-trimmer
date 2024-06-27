@@ -22,6 +22,7 @@ const VideoUploadButton = () => {
   const navigate = useNavigate();
   const { isOnline } = useIsOnline();
   const { setFilePath, setVideoFrameRate } = useApplicationStore();
+  const [message, setMessage] = useState("");
 
   async function uploadUrl() {
     setLoading(true);
@@ -40,6 +41,14 @@ const VideoUploadButton = () => {
     window.appApi.handleEvent("error:uploading", (payload) => {
       toast.error(payload.message);
       setLoading(false);
+    });
+
+    window.appApi.handleEvent("video:isdownloading", () => {
+      setMessage("Downloading video...");
+    });
+
+    window.appApi.handleEvent("video:iscompressing", () => {
+      setMessage("compressing video...");
     });
   }
 
@@ -76,6 +85,7 @@ const VideoUploadButton = () => {
         onChange={(e) => setUrl(e.target.value)}
       />
       {ConditionalContent(loading)}
+      <p className="font-bold text-center my-2">{message}</p>
     </>
   );
 };

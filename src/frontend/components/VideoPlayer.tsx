@@ -26,11 +26,17 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
   const { filePath } = useApplicationStore();
 
   const markInpoint = (currentTime: number, videoDuration: number) => {
-    if (currentTime > -1) {
-      setInpoint(currentTime);
-    } else if (outpoint > -1 && currentTime > outpoint) {
+    // case 1: set inpoint at current time marker, set outpoint at end of video
+    if (currentTime > -1 && outpoint === -1) {
       setInpoint(currentTime);
       setOutpoint(videoDuration);
+    }
+    // case 2: setting inpoint after outpoint
+    else if (currentTime > outpoint && outpoint > -1) {
+      setInpoint(currentTime);
+      setOutpoint(videoDuration);
+    } else if (currentTime > inpoint && currentTime < outpoint) {
+      setInpoint(currentTime);
     } else {
       setInpoint(0);
     }

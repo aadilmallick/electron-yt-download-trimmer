@@ -9,7 +9,8 @@ https://www.youtube.com/watch?v=_Td7JjCTfyc
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 src/videos/
-
+cert.pem
+key.pem
 # Runtime data
 pids
 *.pid

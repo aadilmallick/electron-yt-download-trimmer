@@ -7,6 +7,11 @@ import { VitePlugin } from "@electron-forge/plugin-vite";
 import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
 import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+console.log("Certificate password", process.env.VITE_CERTIFICATE_PASSWORD);
 
 const config: ForgeConfig = {
   packagerConfig: {
@@ -15,10 +20,14 @@ const config: ForgeConfig = {
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
-    new MakerZIP({}, ["darwin"]),
-    new MakerRpm({}),
-    new MakerDeb({}),
+    new MakerSquirrel({
+      certificateFile: "./cert.pem",
+      certificatePassword: process.env.VITE_CERTIFICATE_PASSWORD,
+    }),
+    new MakerDeb({
+      options: {},
+    }),
+    new MakerZIP({}, ["linux", "win32"]),
   ],
   plugins: [
     new VitePlugin({

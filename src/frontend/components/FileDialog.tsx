@@ -15,7 +15,12 @@ const FileDialog = ({ dirPath, onChooseDir }: FileDialogProps) => {
         Choose output folder
       </button>
       {dirPath && (
-        <p className="flex-1 bg-gray-200 text-gray-500 min-w-[20rem] p-1 rounded-sm">
+        <p
+          className="flex-1 bg-gray-200 text-gray-500 min-w-[20rem] p-1 rounded-sm hover:bg-slate-400"
+          onClick={() => {
+            window.appApi.revealInExplorer(dirPath);
+          }}
+        >
           {dirPath}
         </p>
       )}
