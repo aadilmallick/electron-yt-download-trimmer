@@ -3,7 +3,7 @@ name: Make and Publish to Github
 on:
   push:
     branches:
-      - master
+      - main
 
 env:
   GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
