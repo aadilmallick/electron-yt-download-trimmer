@@ -18,8 +18,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
-        uses: ./.github/actions/install
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
       - name: build distributable
         run: npm run make
       - uses: actions/upload-artifact@v4
@@ -40,8 +47,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
-        uses: ./.github/actions/install
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
       - name: build distributable
         run: npm run make
       - uses: actions/upload-artifact@v4
