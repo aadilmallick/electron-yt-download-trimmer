@@ -5,6 +5,7 @@ description: "Get and cache dependencies for faster builds"
 runs:
   using: "composite" # required to define as composite action
   steps:
+    - uses: actions/checkout@v4
     - name: Cache dependencies
       id: cache
       uses: actions/cache@v4
