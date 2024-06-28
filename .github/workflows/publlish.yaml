@@ -2,19 +2,15 @@ name: Make and Publish to Github
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "*"
 
 env:
   GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
 
 jobs:
-  check-version:
-    uses: ./.github/workflows/check-version.yaml
   build-on-linux:
-    needs: check-version
-    if: needs.check-version.outputs.SHOULD_PUBLISH == 'true'
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     env:
       GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
     steps:
@@ -28,16 +24,14 @@ jobs:
         run: npm run make
       - uses: actions/upload-artifact@v4
         with:
-          name: yt-trimmer-v${{needs.check-version.outputs.VERSION}}-linux
+          name: yt-trimmer-${{ github.ref_name }}-linux
           path: out/make/deb/x64/*.deb
       - uses: actions/upload-artifact@v4
         with:
-          name: yt-trimmer-zip-v${{needs.check-version.outputs.VERSION}}-linux
+          name: yt-trimmer-zip-${{ github.ref_name }}-linux
           path: out/make/zip/linux/x64/*.zip
 
   build-on-win:
-    needs: check-version
-    if: needs.check-version.outputs.SHOULD_PUBLISH == 'true'
     runs-on: windows-latest
     env:
       GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
@@ -52,9 +46,9 @@ jobs:
         run: npm run make
       - uses: actions/upload-artifact@v4
         with:
-          name: yt-trimmer-v${{needs.check-version.outputs.VERSION}}-windows
+          name: yt-trimmer-${{ github.ref_name }}-windows
           path: out/make/squirrel.windows/x64
       - uses: actions/upload-artifact@v4
         with:
-          name: yt-trimmer-zip-v${{needs.check-version.outputs.VERSION}}-windows
+          name: yt-trimmer-zip-${{ github.ref_name }}-windows
           path: out/make/zip/win32/x64/*.zip
