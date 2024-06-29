@@ -10,7 +10,7 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
-    "appx": "electron-windows-store --input-directory C:\\Users\\Waadl\\Documents\\aadildev\\projects\\electron-youtube-download-trimmer\\yt-trimmer\\out\\yt-trimmer-win32-x64 --output-directory C:\\Users\\Waadl\\Documents\\aadildev\\projects\\electron-youtube-download-trimmer\\yt-trimmer\\appxoutput --package-version 1.0.0.0 --package-name yttrimmer"
+    "appx": "electron-windows-store --input-directory C:\\Users\\Waadl\\Documents\\aadildev\\projects\\electron-youtube-download-trimmer\\yt-trimmer\\out\\yt-trimmer-win32-x64 --output-directory C:\\Users\\Waadl\\Documents\\aadildev\\projects\\electron-youtube-download-trimmer\\yt-trimmer\\appxoutput --package-version 1.0.0.0 --deploy true --package-name yttrimmer"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.4.0",
@@ -32,6 +32,7 @@
     "autoprefixer": "^10.4.19",
     "dotenv": "^16.4.5",
     "electron": "31.0.2",
+    "electron-windows-store": "^2.1.0",
     "eslint": "^8.57.0",
     "eslint-plugin-import": "^2.29.1",
     "postcss": "^8.4.38",
