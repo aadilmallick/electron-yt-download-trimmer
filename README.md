@@ -63,7 +63,7 @@
 
 ## Code signing
 
-Run this code to self-sign your app: 
+Run this code to self-sign your app:
 
 ```bash
 # interactive
@@ -73,8 +73,26 @@ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 3
 openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 3650 -nodes -subj "/C=US/ST=Virginia/L=Restone/O=Company Name/OU=Org/CN=www.aadilmallick.com"
 ```
 
-You can also create a self-signed certificate using electron builder, like so: 
+You can also create a self-signed certificate using electron builder, like so:
 
 ```bash
 npx electron-builder create-self-signed-cert -p aadilmallick
 ```
+
+## Creating appx output
+
+1. Install electron windows store by running powershell as an administrator.
+
+   ```bash
+   npm install -g electron-windows-store
+   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
+   ```
+
+2. Create app package output by running `npm run package`, and then make sure to rename your executable files to omit any hyphens, as that will cause an error.
+3. Use this command, keeping in mind the package name should not have any hyphens and should be the same name as the renamed executable. When prompted to create a certificate password, select None for the password.
+
+```bash
+electron-windows-store --input-directory <package-directory> --output-directory <output-directory> --package-version 1.0.0.0 --package-name <package-name>
+```
+
+You can see all the important value in the `.electron-windows-store` file in your home directory

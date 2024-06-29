@@ -6,6 +6,7 @@ import { MakerRpm } from "@electron-forge/maker-rpm";
 import { VitePlugin } from "@electron-forge/plugin-vite";
 import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
+import { MakerAppX } from "@electron-forge/maker-appx";
 import path from "path";
 
 const config: ForgeConfig = {
@@ -15,10 +16,21 @@ const config: ForgeConfig = {
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
+    new MakerSquirrel({
+      windowsSign: {
+        certificateFile: process.env.CERTIFICATE_PATH,
+        certificatePassword: "",
+      },
+    }),
     new MakerZIP({}, ["darwin"]),
     new MakerRpm({}),
     new MakerDeb({}),
+    // new MakerAppX({
+    //   windowsKit: "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.19041.0\\x64",
+    //   publisher: "CN=aadilmallick",
+    //   devCert:
+    //     "C:\\Users\\Waadl\\AppData\\Roaming\\electron-windows-store\\aadilmallick\\aadilmallick.pfx",
+    // }),
   ],
   plugins: [
     new VitePlugin({
@@ -54,6 +66,7 @@ const config: ForgeConfig = {
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
   ],
+  publishers: [],
 };
 
 export default config;

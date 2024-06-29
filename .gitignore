@@ -9,6 +9,8 @@ https://www.youtube.com/watch?v=_Td7JjCTfyc
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 src/videos/
+appxoutput/
+encoded.txt
 
 # Runtime data
 pids
