@@ -1,9 +1,29 @@
 import path from "path";
-import { app, dialog } from "electron";
+import { app, dialog, shell } from "electron";
 import { FileManager, VideoModel } from "./nodeUtils";
-import { IPC, Print } from "./utils";
-import { FFMPEGModel, FFPROBEModel, YTDLPModel } from "./videoapi";
+import { IPC, IPCNew } from "./utils";
+import { Print } from "@2022amallick/print-colors";
+
+import { ffmpegModel, ytdlpModel, getBinaryPath } from "./videoapi";
 import fs from "fs/promises";
+import prcs from "process";
+import { LoggerMain } from "./productionLogger";
+
+const log = new LoggerMain();
+log.logInfo();
+
+const ytdlppath = getBinaryPath("yt-dlp");
+log.log(`yt-dlp path is: ${ytdlppath}`);
+log.log(`app path is: ${app.getPath("userData")}`);
+
+(async () => {
+  try {
+    const version = await ytdlpModel.getVersion();
+    log.log(`yt-dlp Version: ${version}`);
+  } catch (e) {
+    log.error(`Error getting yt-dlp version: ${e}`);
+  }
+})();
 
 const globalObj: {
   slicesDir: string | null;
@@ -14,12 +34,15 @@ const globalObj: {
 };
 
 export const onClearVideos = async (window: Electron.BrowserWindow) => {
+  log.log(`in on clear videos`);
   IPC.listenOnMain("video:clear", async (event, _) => {
     try {
       await VideoModel.clearVideosDirectory();
       globalObj.slicesDir = null;
       globalObj.sliceNum = 0;
       Print.green("Cleared videos directory");
+      log.log(`Cleared videos directory`);
+
       IPC.sendToRenderer(window, "success:clear", {
         message: "Videos cleared successfully.",
       });
@@ -42,7 +65,7 @@ export const onUploadSlice = async (window: Electron.BrowserWindow) => {
     const { directory, filepath, inpoint, outpoint } = payload;
 
     try {
-      const stdout = await FFMPEGModel.createVideoSlice(
+      const stdout = await ffmpegModel.createVideoSlice(
         filepath,
         path.join(directory, `slice-${globalObj.sliceNum++}.mp4`),
         inpoint,
@@ -120,38 +143,59 @@ export const onDownloadToBrowser = (
   });
 };
 
+export const onRevealInExplorer = (window: Electron.BrowserWindow) => {
+  IPCNew.listenOnMain("path:show", async (_, { directory }) => {
+    shell.showItemInFolder(directory);
+  });
+};
+
 export const onDownloadYoutubeURL = (
   window: Electron.BrowserWindow,
   cb: () => Promise<void>
 ) => {
+  log.log(` In onDownloadYoutubeURL`);
   IPC.listenOnMain("video:upload", async (event, payload) => {
     if (!payload) throw new Error("Payload is missing");
 
     // set indeterminate progress bar
     window.setProgressBar(2);
 
-    // 1. try downloading video
     try {
-      const stdout = await YTDLPModel.downloadVideo(payload.url);
-      Print.cyan(stdout);
+      // 1. try downloading video
 
+      // 1a. send isdownloading event
+      IPC.sendToRenderer(window, "video:isdownloading");
+      const destinationPath = VideoModel.videosPath;
+      log.log(`downloading video to: ${destinationPath}`);
+      const stdout = await ytdlpModel.downloadVideo(
+        payload.url,
+        destinationPath
+      );
+      Print.cyan(stdout);
+      log.log(` downloaded video!`);
       const webmpath = await VideoModel.renameVideoFile(payload.url);
-      // TODO: convert to mp4
+
+      // 1b. compress video, convert to mp4
+      IPC.sendToRenderer(window, "video:iscompressing");
       const filepath = await VideoModel.convertVideoToMp4(webmpath);
       globalObj.slicesDir = path.basename(filepath).split(".mp4")[0];
-      const framerate = await FFPROBEModel.getVideoFrameRate(filepath);
+      const framerate = await ffmpegModel.ffprobe.getVideoFrameRate(filepath);
       Print.green("Framerate:", framerate);
-      // 3. if video downloading succeeds, send success message to renderer
+
+      // 2. if video downloading succeeds, send success message to renderer
       IPC.sendToRenderer(window, "success:uploading", {
         message: "Video downloaded successfully.",
         filepath,
         framerate,
       });
 
+      log.log(`video compressed successfully!`);
+
       await cb();
     } catch (error) {
+      // 3. if video downloading fails, send error message to renderer
       Print.red("Error downloading video:", error);
-      // 2. if video downloading fails, send error message to renderer
+      log.error(`error downloading video! ${error}`);
       IPC.sendToRenderer(window, "error:uploading", {
         message: "Oops, the video couldn't be downloaded.",
       });

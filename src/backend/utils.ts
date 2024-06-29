@@ -1,25 +1,4 @@
-export class Print {
-  private static colors = {
-    RED: "\x1b[31m",
-    GREEN: "\x1b[32m",
-    YELLOW: "\x1b[33m",
-    BLUE: "\x1b[34m",
-    MAGENTA: "\x1b[35m",
-    CYAN: "\x1b[36m",
-  };
-  private static RESET = "\x1b[0m";
-  static red = (...args) => console.log(Print.colors.RED, ...args, Print.RESET);
-  static green = (...args) =>
-    console.log(Print.colors.GREEN, ...args, Print.RESET);
-  static yellow = (...args) =>
-    console.log(Print.colors.YELLOW, ...args, Print.RESET);
-  static blue = (...args) =>
-    console.log(Print.colors.BLUE, ...args, Print.RESET);
-  static magenta = (...args) =>
-    console.log(Print.colors.MAGENTA, ...args, Print.RESET);
-  static cyan = (...args) =>
-    console.log(Print.colors.CYAN, ...args, Print.RESET);
-}
+import { Print } from "@2022amallick/print-colors";
 
 import { ipcMain, ipcRenderer } from "electron";
 
@@ -107,7 +86,10 @@ export type Channels =
   | "error:slice"
   | "video:clear"
   | "success:clear"
-  | "error:clear";
+  | "error:clear"
+  | "video:isdownloading"
+  | "video:iscompressing"
+  | "path:show";
 
 export type IPCPayloads = {
   [K in Channels]: K extends "video:upload"
@@ -130,15 +112,17 @@ export type IPCPayloads = {
     ? { filepath: string; inpoint: number; outpoint: number; directory: string }
     : K extends "selected:directory"
     ? { directory: string }
+    : K extends "path:show"
+    ? { directory: string }
     : K extends "success:download-to-browser"
     ? { base64string: string }
-    : never;
+    : void;
 };
 
 export type IPCReturns = {
   [K in Channels]: K extends "video:upload"
     ? { message: string; filepath: string; framerate: number }
-    : never;
+    : void;
 };
 
 type IPCPayload<T extends Channels> = IPCPayloads[T];

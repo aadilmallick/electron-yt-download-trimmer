@@ -12,6 +12,8 @@ src/videos/
 appxoutput/
 encoded.txt
 
+cert.pem
+key.pem
 # Runtime data
 pids
 *.pid

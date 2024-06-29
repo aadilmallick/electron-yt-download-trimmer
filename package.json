@@ -2,7 +2,7 @@
   "name": "yt-trimmer",
   "productName": "yt-trimmer",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "The youtube download trimmer that makes it easy.",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
@@ -22,6 +22,7 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.4.0",
     "@electron-forge/plugin-fuses": "^7.4.0",
     "@electron-forge/plugin-vite": "^7.4.0",
+    "@electron-forge/publisher-github": "^7.4.0",
     "@electron/fuses": "^1.8.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
@@ -29,6 +30,7 @@
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "autoprefixer": "^10.4.19",
+    "dotenv": "^16.4.5",
     "electron": "31.0.2",
     "eslint": "^8.57.0",
     "eslint-plugin-import": "^2.29.1",
@@ -45,13 +47,21 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@2022amallick/print-colors": "^1.0.4",
     "@vitejs/plugin-react": "^4.3.1",
+    "electron-log": "^5.1.5",
     "electron-squirrel-startup": "^1.0.1",
+    "lw-ffmpeg-node": "^1.0.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.23.1",
     "react-toastify": "^10.0.5",
+    "update-electron-app": "^3.0.0",
     "uuid": "^10.0.0",
     "zustand": "^4.5.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aadilmallick/electron-yt-download-trimmer"
   }
 }

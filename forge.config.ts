@@ -8,6 +8,11 @@ import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
 import { MakerAppX } from "@electron-forge/maker-appx";
 import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+// console.log("Certificate password", process.env.VITE_CERTIFICATE_PASSWORD);
 
 const config: ForgeConfig = {
   packagerConfig: {
@@ -22,9 +27,14 @@ const config: ForgeConfig = {
         certificatePassword: "",
       },
     }),
-    new MakerZIP({}, ["darwin"]),
+    new MakerZIP({}, ["linux", "win32", "darwin"]),
     new MakerRpm({}),
-    new MakerDeb({}),
+    new MakerDeb({
+      options: {
+        maintainer: "aadilmallick",
+        homepage: "https://aadilmallick.com/",
+      },
+    }),
     // new MakerAppX({
     //   windowsKit: "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.19041.0\\x64",
     //   publisher: "CN=aadilmallick",

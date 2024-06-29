@@ -1,0 +1,29 @@
+name: reusable
+on: workflow_call
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      SHOULD_PUBLISH: ${{steps.check.outputs.changed }}
+      VERSION: ${{ steps.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # this check works by first searching for '<WHATEVER> 1.2.3' in the commit message
+      # if it cannot find it in the commit message, it start diff check search
+      # diff check is slower and it is recommended to use the first option
+      - name: Check if version has been updated
+        id: check
+        uses: EndBug/version-check@v2
+
+      - name: Version changed
+        if: steps.check.outputs.changed == 'true'
+        run: 'echo "Version change found in commit ${{ steps.check.outputs.commit }}! New version: ${{ steps.check.outputs.version }} (${{ steps.check.outputs.type }})"'
+
+      - name: Version unchanged
+        if: steps.check.outputs.changed == 'false'
+        run: 'echo "No version change :/"'

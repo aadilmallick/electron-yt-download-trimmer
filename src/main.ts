@@ -4,10 +4,13 @@ import {
   onClearVideos,
   onDownloadToBrowser,
   onDownloadYoutubeURL,
+  onRevealInExplorer,
   onShowDialog,
   onUploadSlice,
 } from "./backend/controllers";
 import { VideoModel } from "./backend/nodeUtils";
+import { updateElectronApp } from "update-electron-app";
+updateElectronApp();
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -15,6 +18,9 @@ if (require("electron-squirrel-startup")) {
 }
 
 const createWindow = async () => {
+  // delete and clear videos direcotry
+  await VideoModel.clearVideosDirectory();
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1000,
@@ -33,11 +39,6 @@ const createWindow = async () => {
     );
   }
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
-
-  // delete and clear videos direcotry
-  await VideoModel.clearVideosDirectory();
   // set event listeners
   onDownloadYoutubeURL(mainWindow, async () => {
     app.focus();
@@ -46,6 +47,7 @@ const createWindow = async () => {
   onShowDialog(mainWindow);
   onUploadSlice(mainWindow);
   onClearVideos(mainWindow);
+  onRevealInExplorer(mainWindow);
 };
 
 // This method will be called when Electron has finished
