@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import VolumeControls, { VolumeControlsProps } from "./VolumeControls";
 import { toast } from "react-toastify";
 import { Loader } from "./Loader";
@@ -24,6 +24,13 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
   const [speed, setSpeed] = React.useState(1);
   const [sliceFolderPath, setSliceFolderPath] = React.useState("");
   const { filePath } = useApplicationStore();
+
+  useEffect(() => {
+    console.log(inpoint.toFixed(2), outpoint.toFixed(2));
+    const video = videoRef.current;
+    if (!video) return;
+    VideoPlayerModel.setInpointOutpoint(inpoint, outpoint);
+  }, [inpoint, outpoint, videoRef.current]);
 
   const markInpoint = (currentTime: number, videoDuration: number) => {
     // case 1: set inpoint at current time marker, set outpoint at end of video
@@ -118,8 +125,6 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
           videoModel.togglePlay();
           break;
         case "i":
-          console.log(inpoint, outpoint);
-
           markInpoint(
             videoModel.getPlaybackInfo().currentTime,
             videoModel.getPlaybackInfo().duration
@@ -159,12 +164,17 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
   }, [blobUrl]);
 
   const downloadSlice = async () => {
-    if (inpoint === -1 || outpoint === -1) {
-      toast.error("Please set inpoint and outpoint");
+    if (inpoint === -1 || outpoint === -1 || inpoint > outpoint) {
+      toast.error("Please set inpoint and outpoint correctly");
       return;
     }
     if (!sliceFolderPath) {
       toast.error("Please select a directory to save the slice");
+      return;
+    }
+
+    if (outpoint - inpoint < 1) {
+      toast.error("Slice needs to be at least one second long");
       return;
     }
     console.log("downloading slice ...");
@@ -195,8 +205,8 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
           <div className="timeline">
             <img className="preview-img" />
             <div className="thumb-indicator"></div>
-            {/* <div className="inpoint-indicator">I</div> */}
-            {/* <div className="outpoint-indicator">O</div> */}
+            <div className="inpoint-indicator">I</div>
+            <div className="outpoint-indicator">O</div>
           </div>
         </div>
         <div className="video-controls">
@@ -263,4 +273,4 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
   );
 };
 
-export default VideoPlayer;
+export default React.memo(VideoPlayer);

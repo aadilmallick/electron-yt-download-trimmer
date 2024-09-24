@@ -84,10 +84,13 @@ export class VideoModel {
   static async convertVideoToMp4(filepath: string) {
     const fileExtension = path.extname(filepath);
     Print.cyan("File extension:", fileExtension);
+    if (fileExtension === ".mp4") {
+      return filepath;
+    }
     const newFilepath = filepath.replace(fileExtension, ".mp4");
     Print.cyan("MP4 filepath:", newFilepath);
     const stdout = await ffmpegModel.cmd(
-      `-y -i ${filepath} -vcodec libx264 -crf 28 -acodec aac ${newFilepath}`
+      `-y -i ${filepath} -vcodec libx264 -crf 28 -acodec aac -b:a 128k -preset ultrafast ${newFilepath}`
     );
     Print.cyan(stdout);
     return newFilepath;

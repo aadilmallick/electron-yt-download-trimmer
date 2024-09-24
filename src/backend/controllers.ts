@@ -6,7 +6,6 @@ import { Print } from "@2022amallick/print-colors";
 
 import { ffmpegModel, ytdlpModel, getBinaryPath } from "./videoapi";
 import fs from "fs/promises";
-import prcs from "process";
 import { LoggerMain } from "./productionLogger";
 
 const log = new LoggerMain();
@@ -131,8 +130,7 @@ export const onDownloadToBrowser = (
   IPC.listenOnMain("video:download-to-browser", async (event, payload) => {
     try {
       const base64 = await VideoModel.getBlob(payload.filepath);
-      // const blobUrl = URL.createObjectURL(file);
-      Print.green("data string first 100 chars:", base64.slice(0, 100));
+      Print.green("data string first 10 chars:", base64.slice(0, 10));
       IPC.sendToRenderer(window, "success:download-to-browser", {
         base64string: base64,
       });
@@ -171,11 +169,13 @@ export const onDownloadYoutubeURL = (
         payload.url,
         destinationPath
       );
-      Print.cyan(stdout);
+      Print.cyan("\n", stdout, "\n");
       log.log(` downloaded video!`);
+      Print.green("Downloaded video");
       const webmpath = await VideoModel.renameVideoFile(payload.url);
+      Print.magenta("webm path:", webmpath);
 
-      // 1b. compress video, convert to mp4
+      // 1b. if webm, compress video, convert to mp4
       IPC.sendToRenderer(window, "video:iscompressing");
       const filepath = await VideoModel.convertVideoToMp4(webmpath);
       globalObj.slicesDir = path.basename(filepath).split(".mp4")[0];
@@ -202,6 +202,7 @@ export const onDownloadYoutubeURL = (
     } finally {
       // 4. reset progress bar
       window.setProgressBar(-1);
+      window.show();
     }
   });
 };
