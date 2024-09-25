@@ -72,6 +72,7 @@ class VideoPlayerModel {
   }
 
   public togglePlay() {
+    console.log("toggling play, video is", this.video.paused);
     this.video.paused ? this.video.play() : this.video.pause();
     this.video.paused
       ? (this.playPauseBtn.textContent = "▶")

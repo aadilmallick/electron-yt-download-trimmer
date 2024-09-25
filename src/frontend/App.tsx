@@ -8,13 +8,15 @@ import Trim from "./pages/Trim";
 
 const App = () => {
   return (
-    <HashRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/trim" element={<Trim />} />
-      </Routes>
+    <>
+      <HashRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/trim" element={<Trim />} />
+        </Routes>
+      </HashRouter>
       <ToastContainer />
-    </HashRouter>
+    </>
   );
 };
 

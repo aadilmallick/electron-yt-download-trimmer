@@ -122,7 +122,13 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
       }
       switch (e.key.toLowerCase()) {
         case " ":
-          videoModel.togglePlay();
+          console.log(e.target);
+          if (e.target === document.body) {
+            e.preventDefault();
+            videoModel.playPauseBtn.click();
+          } else {
+            videoModel.togglePlay();
+          }
           break;
         case "i":
           markInpoint(
@@ -154,12 +160,13 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
           break;
       }
     }
-    document.addEventListener("keydown", setKeyBoardShortcuts);
+    const onKeyDown = setKeyBoardShortcuts;
+    document.addEventListener("keydown", onKeyDown);
 
     // cleanup function
     return () => {
       videoModel.removeListeners();
-      document.removeEventListener("keydown", setKeyBoardShortcuts);
+      document.removeEventListener("keydown", onKeyDown);
     };
   }, [blobUrl]);
 
