@@ -39,6 +39,10 @@ const createWindow = async () => {
     );
   }
 
+  if (process.env.NODE_ENV === "development") {
+    mainWindow.webContents.openDevTools();
+  }
+
   // set event listeners
   onDownloadYoutubeURL(mainWindow, async () => {
     app.focus();

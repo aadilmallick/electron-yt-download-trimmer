@@ -1,7 +1,7 @@
 {
   "name": "yt-trimmer",
   "productName": "yt-trimmer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The youtube download trimmer that makes it easy.",
   "main": ".vite/build/main.js",
   "scripts": {

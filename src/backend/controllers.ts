@@ -8,6 +8,18 @@ import { ffmpegModel, ytdlpModel, getBinaryPath, ytdlpCLI } from "./videoapi";
 import fs from "fs/promises";
 import { LoggerMain } from "./productionLogger";
 
+function ensureHttps(url: string) {
+  if (!url.startsWith("https://")) {
+    // If the URL does not start with https://, add the prefix
+    if (url.startsWith("http://")) {
+      return url.replace("http://", "https://");
+    }
+    return `https://${url.trim()}`;
+  }
+  // If already starts with https://, return the URL as it is
+  return url.trim();
+}
+
 const log = new LoggerMain();
 log.logInfo();
 
@@ -131,7 +143,7 @@ export const onDownloadToBrowser = (
     try {
       const base64 = await VideoModel.getBlob(payload.filepath);
       // const blobUrl = URL.createObjectURL(file);
-      Print.green("data string first 100 chars:", base64.slice(0, 100));
+      Print.green("data string first 10 chars:", base64.slice(0, 10));
       IPC.sendToRenderer(window, "success:download-to-browser", {
         base64string: base64,
       });
@@ -200,6 +212,7 @@ export const onDownloadYoutubeURL = (
     } finally {
       // 4. reset progress bar
       window.setProgressBar(-1);
+      window.show();
     }
   });
 };

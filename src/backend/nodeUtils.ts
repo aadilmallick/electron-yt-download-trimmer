@@ -55,7 +55,7 @@ export class VideoModel {
   }
 
   static getYoutubeId(url: string) {
-    const youtubeVideoRegex = /https:\/\/www\.youtube\.com\/watch\?v=(\w+)/;
+    const youtubeVideoRegex = /https:\/\/www\.youtube\.com\/watch\?v=((\w|-)+)/;
     const ytUrl = youtubeVideoRegex.exec(url)[0];
     if (!ytUrl) {
       throw new Error("Invalid Youtube URL");

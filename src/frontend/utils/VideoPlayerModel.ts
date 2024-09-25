@@ -90,24 +90,49 @@ class VideoPlayerModel {
     this._isMuted = isMuted;
   }
 
-  public setInpointOutpoint(inpoint: number, outpoint: number) {
+  static setInpointOutpoint(inpoint: number, outpoint: number) {
+    const videoContainer = document.querySelector(
+      ".video-container"
+    ) as HTMLElement;
+    const video = videoContainer.querySelector("video");
+    const timelineContainer = videoContainer.querySelector(
+      ".timeline-container"
+    ) as HTMLElement;
+    const inpointMarker = videoContainer.querySelector(
+      ".inpoint-indicator"
+    ) as HTMLElement;
+    const outpointMarker = videoContainer.querySelector(
+      ".outpoint-indicator"
+    ) as HTMLElement;
+    console.log(
+      `%c inpoint is ${inpoint}, outpoint is ${outpoint}`,
+      "color: blue; font-weight: bold"
+    );
     if (inpoint === -1) {
-      this.inpointMarker.style.display = "none";
+      inpointMarker.classList.add("indicator-hidden");
     }
     if (outpoint === -1) {
-      this.outpointMarker.style.display = "none";
+      outpointMarker.classList.add("indicator-hidden");
     } else {
-      this.inpointMarker.style.display = "block";
-      this.outpointMarker.style.display = "block";
-      console.log("inpoint position", inpoint / this.video.duration);
-      console.log("outpooint position", outpoint / this.video.duration);
-      this.timelineContainer.style.setProperty(
+      inpointMarker.classList.remove("indicator-hidden");
+      outpointMarker.classList.remove("indicator-hidden");
+      console.log("inpoint ratio", inpoint / video.duration);
+      console.log("outpoint ratio", outpoint / video.duration);
+      const inpointPercentage = `${((inpoint / video.duration) * 100).toFixed(
+        0
+      )}%`;
+      const outpointPercentage = `${(
+        Math.min(outpoint / video.duration, 0.99) * 100
+      ).toFixed(0)}%`;
+      console.log("--inpoint-position", inpointPercentage);
+      console.log("--outpoint-position", outpointPercentage);
+      timelineContainer.style.setProperty(
         "--inpoint-position",
-        `${inpoint / this.video.duration}`
+        inpointPercentage
       );
-      this.timelineContainer.style.setProperty(
+      timelineContainer.style.setProperty(
         "--outpoint-position",
-        `${Math.min(outpoint / this.video.duration, 0.99)}`
+        outpointPercentage
       );
     }
   }

@@ -4,6 +4,7 @@ import { Loader } from "../components/Loader";
 import useIsOnline from "../hooks/useIsOnline";
 import { toast } from "react-toastify";
 import { useApplicationStore } from "../hooks/useApplicationStore";
+import useInterval from "../hooks/useInterval";
 
 const Home = () => {
   return (
@@ -23,9 +24,14 @@ const VideoUploadButton = () => {
   const { isOnline } = useIsOnline();
   const { setFilePath, setVideoFrameRate } = useApplicationStore();
   const [message, setMessage] = useState("");
+  const { startInterval, stopInterval } = useInterval(1000);
+  const [timeElapsed, setTimeElapsed] = useState(0);
 
   async function uploadUrl() {
     setLoading(true);
+    startInterval(() => {
+      setTimeElapsed((prev) => prev + 1);
+    });
     window.appApi.downloadYoutubeURL(url);
 
     window.appApi.handleEvent("success:uploading", (payload) => {
@@ -36,11 +42,17 @@ const VideoUploadButton = () => {
       setVideoFrameRate(payload.framerate);
       setLoading(false);
       navigate("/trim");
+
+      stopInterval();
+      setTimeElapsed(0);
     });
 
     window.appApi.handleEvent("error:uploading", (payload) => {
       toast.error(payload.message);
       setLoading(false);
+
+      stopInterval();
+      setTimeElapsed(0);
     });
 
     window.appApi.handleEvent("video:isdownloading", () => {
@@ -86,6 +98,9 @@ const VideoUploadButton = () => {
       />
       {ConditionalContent(loading)}
       <p className="font-bold text-center my-2">{message}</p>
+      <p className="text-gray-500 text-center my-2">
+        {timeElapsed !== 0 && `${timeElapsed} seconds...`}
+      </p>
     </>
   );
 };
