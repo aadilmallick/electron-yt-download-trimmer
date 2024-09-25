@@ -21,12 +21,7 @@ const config: ForgeConfig = {
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({
-      windowsSign: {
-        certificateFile: process.env.CERTIFICATE_PATH,
-        certificatePassword: "",
-      },
-    }),
+    new MakerSquirrel(),
     new MakerZIP({}, ["linux", "win32", "darwin"]),
     new MakerRpm({}),
     new MakerDeb({
@@ -35,12 +30,6 @@ const config: ForgeConfig = {
         homepage: "https://aadilmallick.com/",
       },
     }),
-    // new MakerAppX({
-    //   windowsKit: "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.19041.0\\x64",
-    //   publisher: "CN=aadilmallick",
-    //   devCert:
-    //     "C:\\Users\\Waadl\\AppData\\Roaming\\electron-windows-store\\aadilmallick\\aadilmallick.pfx",
-    // }),
   ],
   plugins: [
     new VitePlugin({

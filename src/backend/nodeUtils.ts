@@ -55,7 +55,7 @@ export class VideoModel {
   }
 
   static getYoutubeId(url: string) {
-    const youtubeVideoRegex = /https:\/\/www\.youtube\.com\/watch\?v=(\w+)/;
+    const youtubeVideoRegex = /https:\/\/www\.youtube\.com\/watch\?v=((\w|-)+)/;
     const ytUrl = youtubeVideoRegex.exec(url)[0];
     if (!ytUrl) {
       throw new Error("Invalid Youtube URL");
@@ -72,22 +72,23 @@ export class VideoModel {
     )[0];
     const fileExtension = path.extname(filename);
     const oldPath = path.join(this.videosPath, filename);
-    Print.cyan("Old path:", oldPath);
+    Print.magenta("Old path:", oldPath);
     let newPath = filename.replaceAll(" ", "-");
     newPath = path.join(this.videosPath, newPath);
     newPath = `${newPath.split(fileExtension)[0]}-${uuid()}${fileExtension}`;
-    Print.cyan("New path:", newPath);
-    fs.rename(oldPath, newPath);
+    Print.magenta("New path:", newPath);
+    await fs.rename(oldPath, newPath);
     return newPath;
   }
 
-  static async convertVideoToMp4(filepath: string) {
+  static async convertVideoToMp4(filepath: string, shouldCompress = false) {
     const fileExtension = path.extname(filepath);
-    Print.cyan("File extension:", fileExtension);
-    if (fileExtension === ".mp4") {
+    // early short circuit if file is already mp4
+    if (fileExtension === ".mp4" && !shouldCompress) {
       return filepath;
     }
-    const newFilepath = filepath.replace(fileExtension, ".mp4");
+    Print.cyan("File extension:", fileExtension);
+    const newFilepath = filepath.replace(fileExtension, "-compressed.mp4");
     Print.cyan("MP4 filepath:", newFilepath);
     const stdout = await ffmpegModel.cmd(
       `-y -i ${filepath} -vcodec libx264 -crf 28 -acodec aac -b:a 128k -preset ultrafast ${newFilepath}`

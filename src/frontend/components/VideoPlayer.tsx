@@ -25,7 +25,7 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
   const [sliceFolderPath, setSliceFolderPath] = React.useState("");
   const { filePath } = useApplicationStore();
 
-  useEffect(() => {
+  React.useEffect(() => {
     console.log(inpoint.toFixed(2), outpoint.toFixed(2));
     const video = videoRef.current;
     if (!video) return;
@@ -177,8 +177,6 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
       toast.error("Slice needs to be at least one second long");
       return;
     }
-    console.log("downloading slice ...");
-    // TODO: download slice
 
     setSliceLoading(true);
     window.appApi.uploadSlice({

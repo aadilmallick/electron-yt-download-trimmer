@@ -24,16 +24,14 @@ const VideoUploadButton = () => {
   const { isOnline } = useIsOnline();
   const { setFilePath, setVideoFrameRate } = useApplicationStore();
   const [message, setMessage] = useState("");
+  const { startInterval, stopInterval } = useInterval(1000);
   const [timeElapsed, setTimeElapsed] = useState(0);
-  const { startInterval, stopInterval } = useInterval(1);
 
   async function uploadUrl() {
     setLoading(true);
-
     startInterval(() => {
       setTimeElapsed((prev) => prev + 1);
     });
-
     window.appApi.downloadYoutubeURL(url);
 
     window.appApi.handleEvent("success:uploading", (payload) => {
@@ -52,7 +50,6 @@ const VideoUploadButton = () => {
     window.appApi.handleEvent("error:uploading", (payload) => {
       toast.error(payload.message);
       setLoading(false);
-      setMessage("");
 
       stopInterval();
       setTimeElapsed(0);

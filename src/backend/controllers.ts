@@ -4,9 +4,21 @@ import { FileManager, VideoModel } from "./nodeUtils";
 import { IPC, IPCNew } from "./utils";
 import { Print } from "@2022amallick/print-colors";
 
-import { ffmpegModel, ytdlpModel, getBinaryPath } from "./videoapi";
+import { ffmpegModel, ytdlpModel, getBinaryPath, ytdlpCLI } from "./videoapi";
 import fs from "fs/promises";
 import { LoggerMain } from "./productionLogger";
+
+function ensureHttps(url: string) {
+  if (!url.startsWith("https://")) {
+    // If the URL does not start with https://, add the prefix
+    if (url.startsWith("http://")) {
+      return url.replace("http://", "https://");
+    }
+    return `https://${url.trim()}`;
+  }
+  // If already starts with https://, return the URL as it is
+  return url.trim();
+}
 
 const log = new LoggerMain();
 log.logInfo();
@@ -130,6 +142,7 @@ export const onDownloadToBrowser = (
   IPC.listenOnMain("video:download-to-browser", async (event, payload) => {
     try {
       const base64 = await VideoModel.getBlob(payload.filepath);
+      // const blobUrl = URL.createObjectURL(file);
       Print.green("data string first 10 chars:", base64.slice(0, 10));
       IPC.sendToRenderer(window, "success:download-to-browser", {
         base64string: base64,
@@ -165,11 +178,10 @@ export const onDownloadYoutubeURL = (
       IPC.sendToRenderer(window, "video:isdownloading");
       const destinationPath = VideoModel.videosPath;
       log.log(`downloading video to: ${destinationPath}`);
-      const stdout = await ytdlpModel.downloadVideo(
-        payload.url,
-        destinationPath
-      );
-      Print.cyan("\n", stdout, "\n");
+      const stdout = await ytdlpCLI([payload.url.trim()], {
+        cwd: destinationPath,
+      });
+      Print.cyan(stdout);
       log.log(` downloaded video!`);
       Print.green("Downloaded video");
       const webmpath = await VideoModel.renameVideoFile(payload.url);
@@ -195,7 +207,7 @@ export const onDownloadYoutubeURL = (
     } catch (error) {
       // 3. if video downloading fails, send error message to renderer
       Print.red("Error downloading video:", error);
-      log.error(`error downloading video! ${error}`);
+      // log.error(`error downloading video! ${error}`);
       IPC.sendToRenderer(window, "error:uploading", {
         message: "Oops, the video couldn't be downloaded.",
       });

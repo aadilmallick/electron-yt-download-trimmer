@@ -1,27 +1,36 @@
-import React from "react";
+import { useEffect, useRef, useCallback } from "react";
 
-const useInterval = (intervalInSeconds: number) => {
-  const [intervalId, setIntervalId] = React.useState<number | null>(null);
+function useInterval(interval = 1000) {
+  const savedCallback = useRef<() => void>();
+  const intervalId = useRef(null);
 
-  const startInterval = React.useCallback(
+  const startInterval = useCallback(
     (callback: () => void) => {
-      stopInterval();
-      const id = window.setInterval(() => {
-        callback();
-      }, intervalInSeconds * 1000);
-      setIntervalId(id);
+      // Only start if no interval is currently running
+      savedCallback.current = callback;
+      if (intervalId.current === null) {
+        intervalId.current = setInterval(() => {
+          savedCallback.current();
+        }, interval);
+      }
     },
-    [intervalInSeconds]
+    [interval]
   );
 
-  const stopInterval = React.useCallback(() => {
-    if (intervalId) {
-      clearInterval(intervalId);
-      setIntervalId(null);
+  const stopInterval = useCallback(() => {
+    // Clear the interval if it exists
+    if (intervalId.current !== null) {
+      clearInterval(intervalId.current);
+      intervalId.current = null;
     }
-  }, [intervalId]);
+  }, []);
+
+  // Clear interval on component unmount
+  useEffect(() => {
+    return () => stop();
+  }, [stop]);
 
   return { startInterval, stopInterval };
-};
+}
 
 export default useInterval;
