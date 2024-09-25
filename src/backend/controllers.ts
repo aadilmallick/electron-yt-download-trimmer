@@ -178,7 +178,7 @@ export const onDownloadYoutubeURL = (
       IPC.sendToRenderer(window, "video:isdownloading");
       const destinationPath = VideoModel.videosPath;
       log.log(`downloading video to: ${destinationPath}`);
-      const stdout = await ytdlpCLI([payload.url.trim()], {
+      const stdout = await ytdlpCLI([ensureHttps(payload.url.trim())], {
         cwd: destinationPath,
       });
       Print.cyan(stdout);

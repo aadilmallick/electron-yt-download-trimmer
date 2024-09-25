@@ -1,5 +1,4 @@
 import fs from "fs/promises";
-import { v4 as uuid } from "uuid";
 import path from "path";
 import { Print } from "@2022amallick/print-colors";
 
@@ -75,7 +74,9 @@ export class VideoModel {
     Print.magenta("Old path:", oldPath);
     let newPath = filename.replaceAll(" ", "-");
     newPath = path.join(this.videosPath, newPath);
-    newPath = `${newPath.split(fileExtension)[0]}-${uuid()}${fileExtension}`;
+    newPath = `${
+      newPath.split(fileExtension)[0]
+    }-${crypto.randomUUID()}${fileExtension}`;
     Print.magenta("New path:", newPath);
     await fs.rename(oldPath, newPath);
     return newPath;

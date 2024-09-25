@@ -26,7 +26,6 @@
     "@electron/fuses": "^1.8.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "autoprefixer": "^10.4.19",
@@ -59,7 +58,6 @@
     "react-router-dom": "^6.23.1",
     "react-toastify": "^10.0.5",
     "update-electron-app": "^3.0.0",
-    "uuid": "^10.0.0",
     "zustand": "^4.5.2"
   },
   "repository": {
