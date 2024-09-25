@@ -1,4 +1,3 @@
-import { Print } from "@2022amallick/print-colors";
 
 import { ipcMain, ipcRenderer } from "electron";
 

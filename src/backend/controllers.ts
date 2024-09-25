@@ -2,7 +2,7 @@ import path from "path";
 import { app, dialog, shell } from "electron";
 import { FileManager, VideoModel } from "./nodeUtils";
 import { IPC, IPCNew } from "./utils";
-import { Print } from "@2022amallick/print-colors";
+import { Print } from "lw-ffmpeg-node";
 
 import { ffmpegModel, ytdlpModel, getBinaryPath, ytdlpCLI } from "./videoapi";
 import fs from "fs/promises";

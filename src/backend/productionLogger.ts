@@ -1,6 +1,6 @@
 import log from "electron-log/main";
 import prcs from "process";
-import { Print } from "@2022amallick/print-colors";
+import { Print } from "lw-ffmpeg-node";
 
 export class LoggerMain {
   private instance: LoggerMain;

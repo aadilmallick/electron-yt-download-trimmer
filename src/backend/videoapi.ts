@@ -1,10 +1,8 @@
 import path from "path";
 import { execFile, spawn } from "child_process";
 
-import { Print } from "@2022amallick/print-colors";
-
 import prcs from "process";
-import { FFMPEGPathModel, YTDLPModel } from "lw-ffmpeg-node";
+import { FFMPEGPathModel, YTDLPModel, Print } from "lw-ffmpeg-node";
 
 export const getBinaryPath = (binaryName: string): string => {
   let binaryPath = null;

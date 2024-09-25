@@ -48,7 +48,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@2022amallick/print-colors": "^1.0.4",
     "@vitejs/plugin-react": "^4.3.1",
     "electron-log": "^5.1.5",
     "electron-squirrel-startup": "^1.0.1",

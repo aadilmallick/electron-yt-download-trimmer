@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
-import { Print } from "@2022amallick/print-colors";
+import { Print } from "lw-ffmpeg-node";
 
 import { ffmpegModel } from "./videoapi";
 import { app } from "electron";
