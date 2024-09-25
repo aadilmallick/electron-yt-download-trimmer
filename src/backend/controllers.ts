@@ -4,9 +4,8 @@ import { FileManager, VideoModel } from "./nodeUtils";
 import { IPC, IPCNew } from "./utils";
 import { Print } from "@2022amallick/print-colors";
 
-import { ffmpegModel, ytdlpModel, getBinaryPath } from "./videoapi";
+import { ffmpegModel, ytdlpModel, getBinaryPath, ytdlpCLI } from "./videoapi";
 import fs from "fs/promises";
-import prcs from "process";
 import { LoggerMain } from "./productionLogger";
 
 const log = new LoggerMain();
@@ -167,10 +166,9 @@ export const onDownloadYoutubeURL = (
       IPC.sendToRenderer(window, "video:isdownloading");
       const destinationPath = VideoModel.videosPath;
       log.log(`downloading video to: ${destinationPath}`);
-      const stdout = await ytdlpModel.downloadVideo(
-        payload.url,
-        destinationPath
-      );
+      const stdout = await ytdlpCLI([payload.url.trim()], {
+        cwd: destinationPath,
+      });
       Print.cyan(stdout);
       log.log(` downloaded video!`);
       const webmpath = await VideoModel.renameVideoFile(payload.url);
@@ -195,7 +193,7 @@ export const onDownloadYoutubeURL = (
     } catch (error) {
       // 3. if video downloading fails, send error message to renderer
       Print.red("Error downloading video:", error);
-      log.error(`error downloading video! ${error}`);
+      // log.error(`error downloading video! ${error}`);
       IPC.sendToRenderer(window, "error:uploading", {
         message: "Oops, the video couldn't be downloaded.",
       });
