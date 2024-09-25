@@ -76,7 +76,7 @@ export const onUploadSlice = async (window: Electron.BrowserWindow) => {
     const { directory, filepath, inpoint, outpoint } = payload;
 
     try {
-      const stdout = await ffmpegModel.createVideoSlice(
+      await ffmpegModel.createVideoSlice(
         filepath,
         path.join(directory, `slice-${globalObj.sliceNum++}.mp4`),
         inpoint,
@@ -172,19 +172,18 @@ export const onDownloadYoutubeURL = (
     window.setProgressBar(2);
 
     try {
-      // 1. try downloading video
-
       // 1a. send isdownloading event
       IPC.sendToRenderer(window, "video:isdownloading");
+
+      // 1. try downloading video
+      const videoUrl = ensureHttps(payload.url.trim());
       const destinationPath = VideoModel.videosPath;
       log.log(`downloading video to: ${destinationPath}`);
-      const stdout = await ytdlpCLI([ensureHttps(payload.url.trim())], {
-        cwd: destinationPath,
-      });
+      const stdout = await ytdlpModel.downloadVideo(videoUrl, destinationPath);
       Print.cyan(stdout);
       log.log(` downloaded video!`);
       Print.green("Downloaded video");
-      const webmpath = await VideoModel.renameVideoFile(payload.url);
+      const webmpath = await VideoModel.renameVideoFile(videoUrl);
       Print.magenta("webm path:", webmpath);
 
       // 1b. if webm, compress video, convert to mp4
