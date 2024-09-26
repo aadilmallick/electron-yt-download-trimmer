@@ -49,6 +49,7 @@
   "license": "MIT",
   "dependencies": {
     "@vitejs/plugin-react": "^4.3.1",
+    "assorted-vanillajs": "^1.0.1",
     "electron-log": "^5.1.5",
     "electron-squirrel-startup": "^1.0.1",
     "lw-ffmpeg-node": "^1.0.7",

@@ -7,7 +7,7 @@ export const ClearVideoButton = () => {
 
   return (
     <button
-      className="bg-black border-gray-200 shadow-md border-2 text-white font-semibold px-4 py-2 text-center rounded-md focus:ring-blue-300 focus:ring-2 absolute top-4 right-4 z-50 disabled:cursor-not-allowed disabled:opacity-50"
+      className="bg-black border-gray-200 shadow-md border-2 text-white font-semibold px-2 py-1 text-center rounded-md focus:ring-blue-300 focus:ring-2 absolute top-0 right-2 z-50 disabled:cursor-not-allowed disabled:opacity-50"
       disabled={loading}
       onClick={async () => {
         setLoading(true);

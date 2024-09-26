@@ -8,7 +8,11 @@ import FileDialog from "./FileDialog";
 import { useApplicationStore } from "../hooks/useApplicationStore";
 import { ClearVideoButton } from "./ClearVideoButton";
 import { debounce } from "../utils/debounce";
+import { ToastManager } from "../utils/Toaster";
 
+const videoToaster = new ToastManager({
+  position: "top-right",
+});
 interface VideoPlayerProps {
   blobUrl: string;
   frameRate: number;
@@ -82,12 +86,14 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
     const video = videoRef.current;
     if (!video) return;
 
+    // init
     const videoModel = new VideoPlayerModel(video);
     const volume = localStorage.getItem("volume");
     volume && videoModel.setVolume(Number(volume));
-
     videoModel.setFramerate(frameRate);
     setSliderVolume(videoModel.volume);
+
+    videoToaster.setContainingElement(videoModel.videoContainer);
 
     // clicking on mute button
     videoModel.assignEventListener("click", videoModel.muteBtn, () => {
@@ -120,7 +126,7 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
         videoModel.skip(1);
         return;
       }
-      if (e.shiftKey && e.key === "s") {
+      if (e.shiftKey && e.key.toLowerCase() === "s") {
         e.preventDefault();
         downloadSlice();
         return;
@@ -145,7 +151,7 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
             videoModel.getPlaybackInfo().currentTime,
             videoModel.getPlaybackInfo().duration
           );
-          toast.info("Inpoint set");
+          videoToaster.info("Inpoint set");
 
           break;
         case "o":
@@ -153,7 +159,7 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
             videoModel.getPlaybackInfo().currentTime,
             videoModel.getPlaybackInfo().duration
           );
-          toast.info("Outpoint set");
+          videoToaster.info("Outpoint set");
 
           break;
         case "n":
@@ -183,16 +189,16 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
   const downloadSlice = debounce(async () => {
     console.log("in downloadSlice");
     if (inpoint === -1 || outpoint === -1 || inpoint > outpoint) {
-      toast.error("Please set inpoint and outpoint correctly");
+      videoToaster.danger("Please set inpoint and outpoint correctly");
       return;
     }
     if (!sliceFolderPath) {
-      toast.error("Please select a directory to save the slice");
+      videoToaster.danger("Please select a directory to save the slice");
       return;
     }
 
     if (outpoint - inpoint < 1) {
-      toast.error("Slice needs to be at least one second long");
+      videoToaster.danger("Slice needs to be at least one second long");
       return;
     }
 
@@ -204,17 +210,15 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
       directory: sliceFolderPath,
     });
     window.appApi.handleEvent("success:slice", (payload) => {
-      toast.success(payload.message, {
-        toastId: "success:slice",
-      });
+      videoToaster.success(payload.message);
       setSliceLoading(false);
     });
 
     window.appApi.handleEvent("error:slice", (payload) => {
-      toast.error(payload.message);
+      videoToaster.danger(payload.message);
       setSliceLoading(false);
     });
-  }, 500);
+  }, 50);
 
   return (
     <>
@@ -238,6 +242,14 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
             <div className="current-time">0:00</div>/
             <div className="total-time"></div>
           </div>
+          {/* slice button */}
+          <button
+            onClick={debounce(downloadSlice, 50)}
+            disabled={!sliceFolderPath === true || sliceLoading === true}
+            className={sliceLoading ? "cursor-not-allowed animate-ping" : ""}
+          >
+            {sliceLoading ? "..." : "S"}
+          </button>
           {/* inpoint button */}
           <button
             style={{
@@ -250,7 +262,7 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
                   videoRef.current.currentTime,
                   videoRef.current.duration
                 );
-                toast.info("Inpoint set");
+                videoToaster.info("Inpoint set");
               }
             }}
           >
@@ -268,7 +280,7 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
                   videoRef.current.currentTime,
                   videoRef.current.duration
                 );
-                toast.info("Outpoint set");
+                videoToaster.info("Outpoint set");
               }
             }}
           >
@@ -351,7 +363,7 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
           Press <kbd>o</kbd> to set outpoint
         </p>
         <p>
-          Press <kbd>ctrl + shift + s</kbd> to download slice
+          Press <kbd>shift + s</kbd> to download slice
         </p>
       </div>
       <ClearVideoButton />

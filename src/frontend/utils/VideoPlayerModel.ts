@@ -103,7 +103,6 @@ class VideoPlayerModel {
     const videoContainer = document.querySelector(
       ".video-container"
     ) as HTMLElement;
-    const video = videoContainer.querySelector("video");
 
     if (fullscreen) {
       videoContainer.requestFullscreen();
