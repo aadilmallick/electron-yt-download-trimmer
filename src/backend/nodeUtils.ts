@@ -4,6 +4,7 @@ import { Print } from "lw-ffmpeg-node";
 
 import { ffmpegModel } from "./videoapi";
 import { app } from "electron";
+import { disableAsar, enableAsar } from "./asarControl";
 
 export class FileManager {
   static getFilepath(filepath: string) {
@@ -21,6 +22,12 @@ export class FileManager {
       return true; // The file exists
     } catch (error) {
       return false; // The file does not exist
+    }
+  }
+
+  static async removeFile(filepath: string) {
+    if (await this.exists(filepath)) {
+      await fs.rm(filepath);
     }
   }
 
@@ -91,10 +98,12 @@ export class VideoModel {
     Print.cyan("File extension:", fileExtension);
     const newFilepath = filepath.replace(fileExtension, "-compressed.mp4");
     Print.cyan("MP4 filepath:", newFilepath);
+    disableAsar();
     const stdout = await ffmpegModel.cmd(
       `-y -i ${filepath} -vcodec libx264 -crf 28 -acodec aac -b:a 128k -preset ultrafast ${newFilepath}`
     );
     Print.cyan(stdout);
+    enableAsar();
     return newFilepath;
   }
 

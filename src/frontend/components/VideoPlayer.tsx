@@ -7,6 +7,7 @@ import PlaybackSpeedControls from "./PlaybackSpeedControls";
 import FileDialog from "./FileDialog";
 import { useApplicationStore } from "../hooks/useApplicationStore";
 import { ClearVideoButton } from "./ClearVideoButton";
+import { debounce } from "../utils/debounce";
 
 interface VideoPlayerProps {
   blobUrl: string;
@@ -193,7 +194,9 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
       directory: sliceFolderPath,
     });
     window.appApi.handleEvent("success:slice", (payload) => {
-      toast.success(payload.message);
+      toast.success(payload.message, {
+        toastId: "success:slice",
+      });
       setSliceLoading(false);
     });
 
@@ -253,7 +256,7 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
         <p>Outpoint: {convertPointToNumber(outpoint)}</p>
         <button
           className="bg-black px-4 py-2 rounded-sm text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={downloadSlice}
+          onClick={debounce(downloadSlice, 50)}
           disabled={!sliceFolderPath === true || sliceLoading === true}
         >
           {sliceLoading ? <Loader /> : "Create slice"}

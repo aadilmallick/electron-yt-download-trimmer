@@ -1,11 +1,11 @@
 import type { ForgeConfig } from "@electron-forge/shared-types";
 import { MakerSquirrel } from "@electron-forge/maker-squirrel";
-import { MakerZIP } from "@electron-forge/maker-zip";
 import { MakerDeb } from "@electron-forge/maker-deb";
 import { MakerRpm } from "@electron-forge/maker-rpm";
 import { VitePlugin } from "@electron-forge/plugin-vite";
 import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
+import { AutoUnpackNativesPlugin } from "@electron-forge/plugin-auto-unpack-natives";
 // import { MakerAppX } from "@electron-forge/maker-appx";
 import path from "path";
 import dotenv from "dotenv";
@@ -16,13 +16,16 @@ dotenv.config();
 
 const config: ForgeConfig = {
   packagerConfig: {
-    asar: true,
+    asar: {
+      unpack: "**/node_modules/lw-ffmpeg-node/**/*",
+    },
+    // asar: true,
     extraResource: [path.join(__dirname, "src", "binaries")],
   },
   rebuildConfig: {},
   makers: [
     new MakerSquirrel(),
-    new MakerZIP({}, ["linux", "win32", "darwin"]),
+    // new MakerZIP({}, ["linux", "win32", "darwin"]),
     new MakerRpm({}),
     new MakerDeb({
       options: {
@@ -64,8 +67,10 @@ const config: ForgeConfig = {
       [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
+    new AutoUnpackNativesPlugin({}),
   ],
   publishers: [],
+  outDir: "out3",
 };
 
 export default config;

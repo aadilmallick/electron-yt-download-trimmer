@@ -4,9 +4,10 @@ import { FileManager, VideoModel } from "./nodeUtils";
 import { IPC, IPCNew } from "./utils";
 import { Print } from "lw-ffmpeg-node";
 
-import { ffmpegModel, ytdlpModel, getBinaryPath, ytdlpCLI } from "./videoapi";
+import { ffmpegModel, ytdlpModel, getBinaryPath } from "./videoapi";
 import fs from "fs/promises";
 import { LoggerMain } from "./productionLogger";
+import { disableAsar, enableAsar } from "./asarControl";
 
 function ensureHttps(url: string) {
   if (!url.startsWith("https://")) {
@@ -26,15 +27,6 @@ log.logInfo();
 const ytdlppath = getBinaryPath("yt-dlp");
 log.log(`yt-dlp path is: ${ytdlppath}`);
 log.log(`app path is: ${app.getPath("userData")}`);
-
-(async () => {
-  try {
-    const version = await ytdlpModel.getVersion();
-    log.log(`yt-dlp Version: ${version}`);
-  } catch (e) {
-    log.error(`Error getting yt-dlp version: ${e}`);
-  }
-})();
 
 const globalObj: {
   slicesDir: string | null;
@@ -76,13 +68,27 @@ export const onUploadSlice = async (window: Electron.BrowserWindow) => {
     const { directory, filepath, inpoint, outpoint } = payload;
 
     try {
+      const slicePath = path.join(
+        directory,
+        `slice-${globalObj.sliceNum++}.mp4`
+      );
+      const compressedSlicePath = path.join(
+        directory,
+        `slice-${globalObj.sliceNum}-compressed.mp4`
+      );
+      disableAsar();
+
       await ffmpegModel.createVideoSlice(
         filepath,
-        path.join(directory, `slice-${globalObj.sliceNum++}.mp4`),
+        slicePath,
         inpoint,
         outpoint
       );
       Print.green("Sliced video");
+      await ffmpegModel.compress(slicePath, compressedSlicePath);
+      enableAsar();
+      await FileManager.removeFile(slicePath);
+      Print.green("Compressed sliced video");
       IPC.sendToRenderer(window, "success:slice", {
         message: "Video sliced successfully.",
       });
@@ -179,7 +185,10 @@ export const onDownloadYoutubeURL = (
       const videoUrl = ensureHttps(payload.url.trim());
       const destinationPath = VideoModel.videosPath;
       log.log(`downloading video to: ${destinationPath}`);
+      disableAsar();
+
       const stdout = await ytdlpModel.downloadVideo(videoUrl, destinationPath);
+      enableAsar();
       Print.cyan(stdout);
       log.log(` downloaded video!`);
       Print.green("Downloaded video");
@@ -190,7 +199,9 @@ export const onDownloadYoutubeURL = (
       IPC.sendToRenderer(window, "video:iscompressing");
       const filepath = await VideoModel.convertVideoToMp4(webmpath);
       globalObj.slicesDir = path.basename(filepath).split(".mp4")[0];
+      disableAsar();
       const framerate = await ffmpegModel.ffprobe.getVideoFrameRate(filepath);
+      enableAsar();
       Print.green("Framerate:", framerate);
 
       // 2. if video downloading succeeds, send success message to renderer

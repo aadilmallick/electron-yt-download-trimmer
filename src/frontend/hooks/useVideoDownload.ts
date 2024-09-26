@@ -16,11 +16,11 @@ const useVideoDownload = (filepath: string) => {
         window.appApi.handleEvent("success:download-to-browser", (payload) => {
           const { base64string } = payload;
           setDataString(base64string);
+          setLoading(false);
         });
       } catch (error) {
         console.error(error);
         setDataString(null);
-      } finally {
         setLoading(false);
       }
     }

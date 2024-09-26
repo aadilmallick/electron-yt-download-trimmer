@@ -43,7 +43,8 @@ jspm_packages/
 
 # TypeScript v1 declaration files
 typings/
-
+out2
+out3
 # TypeScript cache
 *.tsbuildinfo
 
