@@ -73,6 +73,7 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
   const handleSliderVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (videoRef.current) {
       videoRef.current.volume = Number(e.target.value);
+      localStorage.setItem("volume", e.target.value);
     }
   };
 
@@ -82,6 +83,9 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
     if (!video) return;
 
     const videoModel = new VideoPlayerModel(video);
+    const volume = localStorage.getItem("volume");
+    volume && videoModel.setVolume(Number(volume));
+
     videoModel.setFramerate(frameRate);
     setSliderVolume(videoModel.volume);
 
@@ -114,6 +118,11 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
       if (e.shiftKey && e.code === "ArrowRight") {
         e.preventDefault();
         videoModel.skip(1);
+        return;
+      }
+      if (e.shiftKey && e.key === "s") {
+        e.preventDefault();
+        downloadSlice();
         return;
       }
       if (e.shiftKey && e.code === "ArrowLeft") {
@@ -171,7 +180,8 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
     };
   }, [blobUrl]);
 
-  const downloadSlice = async () => {
+  const downloadSlice = debounce(async () => {
+    console.log("in downloadSlice");
     if (inpoint === -1 || outpoint === -1 || inpoint > outpoint) {
       toast.error("Please set inpoint and outpoint correctly");
       return;
@@ -204,7 +214,7 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
       toast.error(payload.message);
       setSliceLoading(false);
     });
-  };
+  }, 500);
 
   return (
     <>
@@ -228,6 +238,42 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
             <div className="current-time">0:00</div>/
             <div className="total-time"></div>
           </div>
+          {/* inpoint button */}
+          <button
+            style={{
+              color: "lightgreen",
+            }}
+            title="Set inpoint"
+            onClick={() => {
+              if (videoRef.current) {
+                markInpoint(
+                  videoRef.current.currentTime,
+                  videoRef.current.duration
+                );
+                toast.info("Inpoint set");
+              }
+            }}
+          >
+            I
+          </button>
+          {/* outpoint button */}
+          <button
+            title="Set outpoint"
+            style={{
+              color: "lightblue",
+            }}
+            onClick={() => {
+              if (videoRef.current) {
+                markOutpoint(
+                  videoRef.current.currentTime,
+                  videoRef.current.duration
+                );
+                toast.info("Outpoint set");
+              }
+            }}
+          >
+            O
+          </button>
           <PlaybackSpeedControls
             speed={speed}
             onSpeedChange={(num: number) => {
@@ -237,6 +283,35 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
               }
             }}
           />
+          {/* fullscreen */}
+          <button
+            title="Fullscreen"
+            onClick={() => {
+              if (videoRef.current) {
+                if (VideoPlayerModel.isFullScreen()) {
+                  VideoPlayerModel.setFullScreen(false);
+                } else {
+                  VideoPlayerModel.setFullScreen(true);
+                }
+              }
+            }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width={24}
+              height={24}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="white"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 7a2 2 0 00-2-2H6a2 2 0 00-2 2v7a2 2 0 002 2h7m2 0a2 2 0 002-2V6a2 2 0 00-2-2h-7m-2 0a2 2 0 00-2 2v7a2 2 0 002 2h7m-7 5a2 2 0 002 2h7a2 2 0 002-2v-7"
+              />
+            </svg>
+          </button>
         </div>
         <video ref={videoRef}>
           <source src={blobUrl} type="video/mp4" />
@@ -274,6 +349,9 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
         </p>
         <p>
           Press <kbd>o</kbd> to set outpoint
+        </p>
+        <p>
+          Press <kbd>ctrl + shift + s</kbd> to download slice
         </p>
       </div>
       <ClearVideoButton />

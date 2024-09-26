@@ -20,6 +20,10 @@ class VideoPlayerModel {
   public get volume() {
     return this.video.volume;
   }
+
+  public setVolume(volume: number) {
+    this.video.volume = volume;
+  }
   // private set
   constructor(private video: HTMLVideoElement) {
     this.playPauseBtn.textContent = "▶";
@@ -89,6 +93,23 @@ class VideoPlayerModel {
   public setMuted(isMuted: boolean) {
     this.video.muted = isMuted;
     this._isMuted = isMuted;
+  }
+
+  static isFullScreen() {
+    return document.fullscreenElement !== null;
+  }
+
+  static setFullScreen(fullscreen: boolean) {
+    const videoContainer = document.querySelector(
+      ".video-container"
+    ) as HTMLElement;
+    const video = videoContainer.querySelector("video");
+
+    if (fullscreen) {
+      videoContainer.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
   }
 
   static setInpointOutpoint(inpoint: number, outpoint: number) {

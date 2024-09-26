@@ -202,9 +202,10 @@
 .inpoint-indicator,
 .outpoint-indicator {
   position: absolute;
-  width: 1.5rem;
-  height: 1.5rem;
-  bottom: 4px;
+  width: 1.2rem;
+  height: 1.2rem;
+  bottom: 0;
+  transform: translate(-50%, 110%);
   color: white;
   border-radius: 50%;
   z-index: 1000;
