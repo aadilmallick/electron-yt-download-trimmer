@@ -126,11 +126,6 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
         videoModel.skip(1);
         return;
       }
-      if (e.shiftKey && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        downloadSlice();
-        return;
-      }
       if (e.shiftKey && e.code === "ArrowLeft") {
         e.preventDefault();
         videoModel.skip(-1);
@@ -186,8 +181,9 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
     };
   }, [blobUrl]);
 
-  const downloadSlice = debounce(async () => {
+  const downloadSlice = async () => {
     console.log("in downloadSlice");
+    if (sliceLoading) return;
     if (inpoint === -1 || outpoint === -1 || inpoint > outpoint) {
       videoToaster.danger("Please set inpoint and outpoint correctly");
       return;
@@ -218,7 +214,7 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
       videoToaster.danger(payload.message);
       setSliceLoading(false);
     });
-  }, 50);
+  };
 
   return (
     <>
@@ -361,9 +357,6 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
         </p>
         <p>
           Press <kbd>o</kbd> to set outpoint
-        </p>
-        <p>
-          Press <kbd>shift + s</kbd> to download slice
         </p>
       </div>
       <ClearVideoButton />

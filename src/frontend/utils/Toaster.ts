@@ -148,6 +148,7 @@ export class ToastManager {
   }
 
   toast(message: string, type: ToastType = "default") {
+    if (Toast.isInView(message)) return;
     const toast = new Toast({
       message,
       type,
@@ -175,6 +176,17 @@ export class ToastManager {
   }
 }
 
+function basicHash(message: string) {
+  let hash = 0;
+  if (message.length === 0) return hash;
+  for (let i = 0; i < message.length; i++) {
+    const char = message.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
+  }
+  return hash;
+}
+
 class Toast {
   public element: HTMLElement;
   private timeoutId: NodeJS.Timeout | null = null;
@@ -194,6 +206,7 @@ class Toast {
     toast.classList.add("toast");
     toast.classList.add(`toast-${type}`);
     toast.style.setProperty("--toast-duration", `${duration}ms`);
+    toast.id = `toast-${basicHash(message)}`;
     toast.innerText = message;
 
     this.element = toast;
@@ -210,6 +223,11 @@ class Toast {
         once: true,
       }
     );
+  }
+
+  static isInView(message: string) {
+    const toastId = `toast-${basicHash(message)}`;
+    return document.getElementById(toastId) !== null;
   }
 
   animateOut() {
