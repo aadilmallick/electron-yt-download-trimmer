@@ -147,11 +147,11 @@ export const onDownloadToBrowser = (
 ) => {
   IPC.listenOnMain("video:download-to-browser", async (event, payload) => {
     try {
-      const base64 = await VideoModel.getBlob(payload.filepath);
+      const base64chunks = await VideoModel.getBlob(payload.filepath);
       // const blobUrl = URL.createObjectURL(file);
-      Print.green("data string first 10 chars:", base64.slice(0, 10));
+      Print.green("data string first 10 chars:", base64chunks[0].slice(0, 10));
       IPC.sendToRenderer(window, "success:download-to-browser", {
-        base64string: base64,
+        base64chunks,
       });
       cb && (await cb());
     } catch (e) {

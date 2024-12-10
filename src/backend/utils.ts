@@ -1,4 +1,3 @@
-
 import { ipcMain, ipcRenderer } from "electron";
 
 export class IPC {
@@ -114,7 +113,7 @@ export type IPCPayloads = {
     : K extends "path:show"
     ? { directory: string }
     : K extends "success:download-to-browser"
-    ? { base64string: string }
+    ? { base64chunks: string[] }
     : void;
 };
 

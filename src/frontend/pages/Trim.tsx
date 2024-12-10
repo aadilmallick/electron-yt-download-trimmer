@@ -6,18 +6,18 @@ import { toast } from "react-toastify";
 
 const Trim = () => {
   const { filePath, videoFrameRate } = useApplicationStore();
-  const { dataString, loading } = useVideoDownload(filePath);
+  const { loading, blobUrl } = useVideoDownload(filePath);
 
   if (loading) {
     return <h1 className="text-4xl font-bold">Loading...</h1>;
-  } else if (!dataString || !filePath) {
+  } else if (!blobUrl || !filePath) {
     // toast.error("Error loading video");
     return <h1 className="text-4xl font-bold">Whoops! Couldn't load video</h1>;
   }
 
   return (
     <section className="py-8 h-screen">
-      <VideoPlayer blobUrl={dataString} frameRate={videoFrameRate} />
+      <VideoPlayer blobUrl={blobUrl} frameRate={videoFrameRate} />
     </section>
   );
 };

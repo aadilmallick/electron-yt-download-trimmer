@@ -1,4 +1,5 @@
 import fs from "fs/promises";
+import fsNode from "fs";
 import path from "path";
 import { Print } from "lw-ffmpeg-node";
 
@@ -120,15 +121,55 @@ export class VideoModel {
     if (!(await FileManager.exists(filepath))) {
       throw new Error("File does not exist");
     }
+    const fileSize = (await fs.stat(filepath)).size;
+    Print.magenta("File size:", fileSize);
+    return await this._getBlob(filepath, fileSize);
+  }
 
+  static _getBlob(filepath: string, filesize: number): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+      const base64chunksArray = Array.from(
+        { length: Math.ceil(filesize / (1024 * 1024 * 100)) },
+        () => ""
+      );
+      let index = 0;
+      const mimeType = "video/mp4"; // Change this to the correct MIME type if needed
+      const fileStream = fsNode.createReadStream(filepath, {
+        encoding: "base64",
+      });
+
+      fileStream.on("data", (chunk) => {
+        base64chunksArray[index] += chunk;
+        if (base64chunksArray[index].length > 1024 * 1024 * 100) {
+          index++;
+          if (index === base64chunksArray.length) {
+            index = base64chunksArray.length - 1;
+          }
+        }
+      });
+
+      fileStream.on("end", () => {
+        resolve(base64chunksArray);
+        // const base64string = base64chunksArray.join("");
+        // const dataUrl = `data:${mimeType};base64,${base64string}`;
+        // resolve(dataUrl);
+      });
+
+      fileStream.on("error", (error) => {
+        reject(error);
+      });
+    });
+  }
+
+  static async getBlobNormial(filepath: string) {
+    if (!(await FileManager.exists(filepath))) {
+      throw new Error("File does not exist");
+    }
     const base64string = await fs.readFile(filepath, {
       encoding: "base64",
     });
     const mimeType = "video/mp4"; // Change this to the correct MIME type if needed
     const dataUrl = `data:${mimeType};base64,${base64string}`;
     return dataUrl;
-    // const blob = new Blob([buffer], { type: "video/mp4" });
-    // const file = new File([blob], path.basename(filepath), { type: blob.type });
-    // return file;
   }
 }

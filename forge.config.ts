@@ -70,7 +70,7 @@ const config: ForgeConfig = {
     new AutoUnpackNativesPlugin({}),
   ],
   publishers: [],
-  outDir: "out3",
+  outDir: "out4",
 };
 
 export default config;
