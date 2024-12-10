@@ -95,9 +95,21 @@ export type IPCPayloads = {
     : K extends "error:uploading"
     ? { message: string }
     : K extends "success:slice"
-    ? { message: string }
+    ? {
+        message: string;
+        inpoint: number;
+        outpoint: number;
+        index?: number;
+        id: string;
+      }
     : K extends "error:slice"
-    ? { message: string }
+    ? {
+        message: string;
+        inpoint: number;
+        outpoint: number;
+        index?: number;
+        id: string;
+      }
     : K extends "success:clear"
     ? { message: string }
     : K extends "error:clear"
@@ -107,7 +119,13 @@ export type IPCPayloads = {
     : K extends "video:download-to-browser"
     ? { filepath: string }
     : K extends "video:slice"
-    ? { filepath: string; inpoint: number; outpoint: number; directory: string }
+    ? {
+        filepath: string;
+        inpoint: number;
+        outpoint: number;
+        directory: string;
+        id: string;
+      }
     : K extends "selected:directory"
     ? { directory: string }
     : K extends "path:show"

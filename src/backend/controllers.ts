@@ -65,7 +65,7 @@ export const onUploadSlice = async (window: Electron.BrowserWindow) => {
     // set indeterminate progress bar
     window.setProgressBar(2);
 
-    const { directory, filepath, inpoint, outpoint } = payload;
+    const { directory, filepath, inpoint, outpoint, id } = payload;
 
     try {
       const slicePath = path.join(
@@ -91,11 +91,19 @@ export const onUploadSlice = async (window: Electron.BrowserWindow) => {
       Print.green("Compressed sliced video");
       IPC.sendToRenderer(window, "success:slice", {
         message: "Video sliced successfully.",
+        index: globalObj.sliceNum,
+        inpoint,
+        outpoint,
+        id,
       });
     } catch (error) {
       Print.red("Error slicing video:", error);
       IPC.sendToRenderer(window, "error:slice", {
         message: "Oops, the video couldn't be sliced.",
+        inpoint,
+        outpoint,
+        index: globalObj.sliceNum,
+        id,
       });
     } finally {
       // reset progress bar

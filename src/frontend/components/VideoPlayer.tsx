@@ -12,10 +12,20 @@ import { ToastManager } from "../utils/Toaster";
 
 const videoToaster = new ToastManager({
   position: "top-right",
+  timeout: 1500,
 });
 interface VideoPlayerProps {
   blobUrl: string;
   frameRate: number;
+}
+
+interface Slice {
+  inpoint: number;
+  outpoint: number;
+  id: string;
+  loading: boolean;
+  index?: number;
+  state: "loading" | "success" | "error";
 }
 
 const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
@@ -26,6 +36,7 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
   const [inpoint, setInpoint] = React.useState(-1);
   const [outpoint, setOutpoint] = React.useState(-1);
   const [sliceLoading, setSliceLoading] = React.useState(false);
+  const [slices, setSlices] = React.useState<Slice[]>([]);
   const [speed, setSpeed] = React.useState(1);
   const [sliceFolderPath, setSliceFolderPath] = React.useState("");
   const { filePath } = useApplicationStore();
@@ -199,20 +210,48 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
     }
 
     setSliceLoading(true);
+    const newSlice: Slice = {
+      inpoint,
+      outpoint,
+      id: crypto.randomUUID(),
+      loading: true,
+      state: "loading",
+    };
     window.appApi.uploadSlice({
       inpoint,
       outpoint,
       filepath: filePath,
       directory: sliceFolderPath,
+      id: newSlice.id,
     });
+    videoToaster.info("Creating slice...");
+    setSlices((prev) => [...prev, newSlice]);
+    setTimeout(() => {
+      setSliceLoading(false);
+    }, 2500);
+
     window.appApi.handleEvent("success:slice", (payload) => {
       videoToaster.success(payload.message);
-      setSliceLoading(false);
+      // setSliceLoading(false);
+      setSlices((prev) => {
+        const index = prev.findIndex((slice) => slice.id === payload.id);
+        prev[index].loading = false;
+        prev[index].index = payload.index;
+        prev[index].state = "success";
+        return [...prev];
+      });
     });
 
     window.appApi.handleEvent("error:slice", (payload) => {
       videoToaster.danger(payload.message);
-      setSliceLoading(false);
+      // setSliceLoading(false);
+      setSlices((prev) => {
+        const index = prev.findIndex((slice) => slice.id === payload.id);
+        prev[index].loading = false;
+        prev[index].index = payload.index;
+        prev[index].state = "error";
+        return [...prev];
+      });
     });
   };
 
@@ -334,6 +373,32 @@ const VideoPlayer = ({ blobUrl, frameRate }: VideoPlayerProps) => {
           });
         }}
       />
+      <ul className="flex flex-wrap gap-2 max-w-[800px] mx-auto bg-gray-100 p-4 rounded-lg max-h-96 overflow-y-auto">
+        {slices.map((slice) => {
+          const base =
+            "p-2 border border-gray-200 rounded-lg shadow-sm font-semibold";
+          const loadingClass = `${base} bg-gray-300 animate-pulse`;
+          const successClass = `${base} bg-green-300 text-white`;
+          const errorClass = `${base} bg-red-300 text-white`;
+
+          return (
+            <li
+              key={slice.id}
+              className={
+                slice.state === "loading"
+                  ? loadingClass
+                  : slice.state === "success"
+                  ? successClass
+                  : errorClass
+              }
+            >
+              {`Slice ${slice.index || ""} ${convertPointToNumber(
+                slice.inpoint
+              )} - ${convertPointToNumber(slice.outpoint)}`}
+            </li>
+          );
+        })}
+      </ul>
       <div className="inpoint-outpoint-container space-y-4">
         <p>Inpoint: {convertPointToNumber(inpoint)}</p>
         <p>Outpoint: {convertPointToNumber(outpoint)}</p>
